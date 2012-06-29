@@ -1,3 +1,8 @@
 ---
 - handler: restart apache
   action: service name=apache state=restarted 
+#
+# make a new cache for the repo that has vcl-*
+#
+- handler: make new yum cache
+  action: yum --disablerepo=\* --enablerepo=serverascode-CentOS-6 makecache

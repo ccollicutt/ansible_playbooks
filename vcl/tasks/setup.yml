@@ -1,4 +1,12 @@
 ---
+#
+# Configure a custom repository at packages.serverascode.com/mrepo
+# that has the vcl, vcl-web, and vcl-managementnode RPMs
+#
+- name: install the serverascode centos 6 yum repo file 
+  action: copy src=files/serverascode-centos6.repo dest=/etc/yum.repos.d/serverascode-centos6.repo owner=root group=root mode=0644
+
+#
 # For the purposes of this example we'll just turn off iptables, bad sysadmin!
 - name: turn off iptables service
   action: service name=iptables state=stopped
