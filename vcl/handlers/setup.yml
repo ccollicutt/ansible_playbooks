@@ -1,0 +1,3 @@
+---
+- handler: restart apache
+  action: service name=apache state=restarted 

@@ -1,0 +1,9 @@
+---
+- hosts: vcl
+  user: root
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - include: tasks/setup.yml
+  handlers:
+    - include: handlers/setup.yml
