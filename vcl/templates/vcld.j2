@@ -1,0 +1,127 @@
+##############################################################################
+# $Id: vcld.conf 989138 2010-08-25 14:41:01Z fapeeler $
+##############################################################################
+# LICENSE
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version
+# 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+# NAME
+# vcld.conf
+# 
+# DESCRIPTION
+# This file contains configuration values for a VCL management node daemon.
+# It contains senistive information and should have appropriate permissions.
+#
+# FORMAT
+# The format is assumed to be key=value.  Lines should not contain spaces.
+# 
+
+############# REQUIRED Configuration settings ################
+
+# FQDN: DNS name of the management node
+# Example: mgtnode1.hpc.someschool.edu
+FQDN={{ hostname }}.{{ domain }}
+
+# processname: name to call VCL daemon process
+# Default: vcld
+processname=vcld
+
+# log: log file location
+# Default: /var/log/vcld.log
+# If left undefined it will be named according to the above processname
+# i.e. /var/log/$PROCESSNAME.log
+log=/var/log/vcld.log
+
+# pidfile: process id file location 
+# Default: /var/run/vcld.pid
+# If left undefined it will be named according to the above processname
+# i.e. /var/run/$PROCESSNAME.pid
+pidfile=/var/run/vcld.pid
+
+# Database connection information
+
+# database: name of MySQL database (required)
+database={{ vcldb }}
+
+# server: IP address or FQDN of the database server (required)
+server={{ vclhost }}
+
+# LockerWrtUser: MySQL user account name with write privileges (required)
+LockerWrtUser={{ vclusername }}
+
+# wrtPass: MySQL password of the above LockerWrtUser (required)
+# Any length is supported by MySQL
+# Must be a string of characters: A-Z a-z 0-9
+wrtPass={{ vcluserpassword }}
+
+# xml-rpc username password and url information
+# Required for block reservation processing
+# xmlrpc_username must be the unityid field for a user in the user table
+# xmlrpc_pass is that user's password
+# the URL will be the URL of your VCL website with a few things on the end
+#   for example, if you install the VCL web code at https://vcl.example.org/vcl/
+#   set xmlrpc_url to https://vcl.example.org/vcl/index.php?mode=xmlrpccall
+
+xmlrpc_username=vclsystem
+xmlrpc_pass=insecureDefault
+xmlrpc_url=
+
+######### END REQUIRED Configuration settings ##############
+
+
+# enable_mysql_ssl: Determines if SSL is used for MySQL connections
+# Useful in open networks or large distributed configurations
+# Note: Perl's DBD-mysql module must be compiled with the --ssl option
+#       It is not turned on by default
+# Values: no|yes
+# Default: no
+enable_mysql_ssl=no
+
+#mysql_ssl_cert: Path to MySQL certificate file
+mysql_ssl_cert=/etc/vcl/cert/my_ca.crt
+
+#Sendmail envelope sender -- Return-path
+#The return-path should be set if you want email delivery failures to go
+#to a common place
+#set this to a known working address that would recieve mail like blah@yourdomain.com
+RETURNPATH=
+
+#IM support - jabber only at this time
+#jabber - dependiences on Net::Jabber.pm perl modules
+# for information on how to install Net::Jabber.pm modules see documentation
+jabber=no
+
+# jabber variables
+# ignore if jabber=no
+
+# jabServer - server IP or FQHN of jabber server
+jabServer=your.jabber.com
+
+# jabPort - jabber port - default 5222
+jabPort=5222
+
+# jabUser - registered jabber user
+jabUser=vcl
+
+# jabPass - password for jabber user
+jabPass=
+
+# jabResource - jabbber resource
+jabResource=vcl
+
+# Windows node root password
+WINDOWS_ROOT_PASSWORD=cl0udy

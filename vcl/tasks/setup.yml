@@ -56,3 +56,8 @@
   action: template src=templates/conf.j2 dest=/usr/share/vcl-web/.ht-inc/conf.php owner=root group=apache mode=0640
 - name: copy over secrets.php template
   action: template src=templates/secrets.j2 dest=/usr/share/vcl-web/.ht-inc/secrets.php
+#
+# vcld configuration file
+#
+- name: copy over vcld.conf template
+  action: template src=templates/vcld.j2 dest=/etc/vcl/vcld.conf owner=root group=root mode=0640
