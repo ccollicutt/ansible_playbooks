@@ -1,0 +1,26 @@
+---
+#
+# secrets.php variables
+#
+vclhost: localhost
+vcldb: vcl
+vclusername: vcluser
+vcluserpassword: CHANGEME
+pemkey: CHANGEME 
+mcryptkey: CHANGEME 
+# mcryptiv must be 8 hex chars!
+mcryptiv: CHANGEME 
+
+#
+# conf.php variables
+#
+domain: example.com 
+hostname: vcl-test
+# email
+helpemail: vcl_help
+erroremail: webmaster
+envelopesender: webserver
+# cookiedomain = .domain
+# homeurl = host.domain
+timezone: America/New_York
+blocknotify: adminuser
