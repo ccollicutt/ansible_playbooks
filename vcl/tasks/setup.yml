@@ -5,6 +5,8 @@
 #
 - name: install the serverascode centos 6 yum repo file 
   action: copy src=files/serverascode-centos6.repo dest=/etc/yum.repos.d/serverascode-centos6.repo owner=root group=root mode=0644
+  notify:
+    - refesh yum cache
 #
 # Make sure vcl-* are installed
 #
@@ -29,6 +31,8 @@
   action: service name=httpd state=running
 - name: copy over the vcl.conf file
   action: copy src=files/vcl.conf dest=/etc/httpd/conf.d/vcl.conf owner=root group=root mode=0644
+  notify:
+    - restart apache
 #
 # VCL RPMs
 #
