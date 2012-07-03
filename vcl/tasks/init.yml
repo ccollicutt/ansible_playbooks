@@ -12,4 +12,4 @@
 - name: generate pubkey.pem 
   action: command /usr/bin/openssl rsa -pubout -passin pass:$pemkey -in /usr/share/vcl-web/.ht-inc/keys.pem -out /usr/share/vcl-web/.ht-inc/pubkey.pem 
 - name: setup /etc/hosts
-  action: shell /bin/echo '$ansible_eth0.ipv4.address $hostname.$domain' >> /etc/hosts
+  action: shell /bin/echo '${ansible_eth0.ipv4.address} $hostname.$domain' >> /etc/hosts

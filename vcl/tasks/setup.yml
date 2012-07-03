@@ -6,7 +6,7 @@
 - name: install the serverascode centos 6 yum repo file 
   action: copy src=files/serverascode-centos6.repo dest=/etc/yum.repos.d/serverascode-centos6.repo owner=root group=root mode=0644
   notify:
-    - refesh yum cache
+    - refresh yum cache
 #
 # Make sure vcl-* are installed
 #
