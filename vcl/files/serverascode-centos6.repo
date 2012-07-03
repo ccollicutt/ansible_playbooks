@@ -1,6 +1,6 @@
 [serverascode-CentOS-6]
 name=serverascode Extra Packages for Enterprise Linux 6 - $basearch
-baseurl=http://packages.serverascode.com/mrepo/custom-centos6-x86_64/RPMS.updates
+baseurl=http://packages.serverascode.com/mrepo/custom-centos6-noarch/RPMS.updates
 failovermethod=priority
 enabled=1
 gpgcheck=0
