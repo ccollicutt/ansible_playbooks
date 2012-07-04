@@ -17,9 +17,14 @@
 - name: make sure vcl-managementnode is installed
   action: yum pkg=vcl-managementnode state=installed
 #
-# For the purposes of this example we'll just turn off iptables, bad sysadmin!
-- name: turn off iptables service
-  action: service name=iptables state=stopped
+# Iptables
+#
+- name: install iptables rules
+  action: copy src=files/iptables dest=/etc/sysconfig/iptables owner=root group=root mode=0775
+  notify:
+    - restart iptables
+- name: ensure iptables is running 
+  action: service name=iptables state=running
 - name: chkconfig iptables off
   action: command /sbin/chkconfig iptables off
 #
