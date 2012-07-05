@@ -1,1 +1,5 @@
-This is an Ansible Playbook to deploy Apache Virtual Computer Lab https://cwiki.apache.org/VCL/ .
+h2. Apache VCL Playbook
+
+This is an "ansible":http://ansible.github.com playbook to install "Apache VCL":https://cwiki.apache.org/VCL/ on CentOS 6.
+
+There is a "blog post":http://www.cybera.ca/tech-radar/first-look-ansible that covers the basics of installing VCL using this playbook.
