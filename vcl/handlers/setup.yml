@@ -1,4 +1,7 @@
 ---
+#
+# Apache
+#
 - name: restart apache
   action: service name=httpd state=restarted
 #
@@ -6,3 +9,8 @@
 #
 - name: refresh yum cache
   action: shell /usr/bin/yum --disablerepo=\* --enablerepo=serverascode-CentOS-6 makecache
+#
+# iptables
+#
+- name: restart iptables
+  action: service name=iptables state=restarted
