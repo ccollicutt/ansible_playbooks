@@ -19,3 +19,5 @@ else
    echo "mkdir ./$PLAYBOOK failed"
    exit 1
 fi
+
+exit 0
