@@ -14,7 +14,7 @@ mcryptiv: CHANGEME
 #
 # conf.php variables
 #
-domain: example.com 
+domain: example.com
 hostname: vcl-test
 # email
 helpemail: vcl_help

@@ -1,5 +1,12 @@
 ---
 #
+# Disable selinux
+#
+- name: temporarily disable selinux
+  action: command /usr/sbin/setenforce 0
+- name: disable selinux completely
+  action: shell /bin/sed -i 's|SELINUX=enforcing|SELINUX=disabled|' /etc/sysconfig/selinux
+#
 # Configure a custom repository at packages.serverascode.com/mrepo
 # that has the vcl, vcl-web, and vcl-managementnode RPMs
 #
@@ -7,6 +14,22 @@
   action: copy src=files/serverascode-centos6.repo dest=/etc/yum.repos.d/serverascode-centos6.repo owner=root group=root mode=0644
   notify:
     - refresh yum cache
+- name: make yum cache (could take a while)
+  action: shell /usr/bin/yum clean all; /usr/bin/yum makecache
+#
+# Install rpmforge and epel repositories
+#
+# XXX perhaps repo rpms should be variables XXX
+- name: install rpmforge repository
+  action: yum pkg=rpmforge-release state=installed
+  notify:
+    - refresh yum cache
+- name: install epel repository
+  action: yum pkg=epel-release state=installed
+  notify:
+    - refresh yum cache
+- name: make yum cache again (could take a while)
+  action: shell /usr/bin/yum clean all; /usr/bin/yum makecache
 #
 # Make sure vcl-* are installed
 #
