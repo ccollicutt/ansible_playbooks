@@ -1,0 +1,19 @@
+---
+#
+# Install openstack_nova_api.pm XXX TEMP Should be in RPM XXX
+#
+- name: copy over sql modifications for openstack nova api module
+  action: copy src=files/openstack_api_modifications.sql dest=/usr/share/doc/vcl-2.2.1/openstack_api_modifications.sql
+- name: install sql modifications for openstack nova api module
+  action: shell /usr/bin/mysql $vcldb < /usr/share/doc/vcl-2.2.1/openstack_api_modifications.sql
+# NOTE: The openstack_nova_api.pm modules needs to be called openstack.pm
+- name: install openstack_nova_api.pm module
+  action: copy src=files/openstack_nova_api.pm dest=/usr/share/vcl-managementnode/lib/VCL/Module/Provisioning/openstack.pm
+- name: make sure python-novaclient is installed
+  action: yum pkg=python-novaclient state=installed
+- name: python-novaclient also needs python-setuptools but isn't in dependencies
+  action: yum pkg=python-setuptools state=installed
+- name: create /etc/vcl/opentstack directory
+  action: file dest=/etc/vcl/openstack mode=644 owner=root group=root state=directory
+- name: copy over openstack.conf template
+  action: template src=templates/openstack.j2 dest=/etc/vcl/openstack/openstack.conf owner=root group=apache mode=0640

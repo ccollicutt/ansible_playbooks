@@ -62,15 +62,6 @@
   notify:
     - restart apache
 #
-# VCL RPMs
-#
-- name: make sure vcl RPM is installed
-  action: yum pkg=vcl state=installed
-- name: make sure vcl-web RPM is installed
-  action: yum pkg=vcl-web state=installed
-- name: make sure vcl-managementnode RPM is installed
-  action: yum pkg=vcl-managementnode state=installed
-#
 # Database
 #
 - name: ensure mysqld is installed
