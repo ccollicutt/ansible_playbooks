@@ -4,4 +4,5 @@
   vars_files:
     - vars/main.yml
   tasks:
+    - include: tasks/initdb.yml
     - include: tasks/init.yml
