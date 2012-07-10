@@ -248,7 +248,8 @@ sub _image_create{
         }
 
         my $image_description = $image_name . '-' . $imagerevision_comments;
-        my $capture_image = "nova image-create $instance_id $image_description";
+        #my $capture_image = "nova image-create $instance_id $image_description";
+        my $capture_image = "nova image-create cc5a7ab9-9d9c-48f6-bab8-5c89c4b40c8d $image_description";
         notify($ERRORS{'OK'}, 0, "New Image Capture Command: $capture_image");
         my $capture_image_output = `$capture_image`;
 

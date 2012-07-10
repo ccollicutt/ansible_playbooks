@@ -14,6 +14,6 @@
 - name: python-novaclient also needs python-setuptools but isn't in dependencies
   action: yum pkg=python-setuptools state=installed
 - name: create /etc/vcl/opentstack directory
-  action: file dest=/etc/vcl/openstack mode=644 owner=root group=root state=directory
+  action: file dest=/etc/vcl/openstack mode=0755 owner=root group=root state=directory
 - name: copy over openstack.conf template
   action: template src=templates/openstack.j2 dest=/etc/vcl/openstack/openstack.conf owner=root group=apache mode=0640
