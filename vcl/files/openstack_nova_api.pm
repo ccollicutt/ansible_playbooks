@@ -248,8 +248,7 @@ sub _image_create{
         }
 
         my $image_description = $image_name . '-' . $imagerevision_comments;
-        #my $capture_image = "nova image-create $instance_id $image_description";
-        my $capture_image = "nova image-create cc5a7ab9-9d9c-48f6-bab8-5c89c4b40c8d $image_description";
+        my $capture_image = "nova image-create $instance_id $image_description";
         notify($ERRORS{'OK'}, 0, "New Image Capture Command: $capture_image");
         my $capture_image_output = `$capture_image`;
 
@@ -621,40 +620,11 @@ sub does_image_exist {
 
 sub get_image_size {
 	my $self = shift;
-	if (ref($self) !~ /open/i) {
+	if (ref($self) !~ /openstack/i) {
 		notify($ERRORS{'CRITICAL'}, 0, "subroutine was called as a function, it must be called as a class method");
 		return 0;
 	}
-
-	my $image_fullname = $self->data->get_image_name();
-	my $image_os_type  = $self->data->get_image_os_type;
-	my $image_id;
-	my $image_name;
-
-	# Match image name between VCL and Openstack
-        $image_name = _match_image_name($image_fullname);
-
-	if($image_name  =~ m/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/g )
-	{
-                $image_name = $1;
-                notify($ERRORS{'OK'}, 0, "Acquire the Image ID: $image_id");
-        }
-        else {
-                notify($ERRORS{'DEBUG'}, 0, "Fail to acquire the Image ID: $image_name");
-                return;
-        }
-
-	notify($ERRORS{'OK'}, 0, "getting size of image: $image_id");
-	my $query_image = "nova image-list | grep $image_id";
-	my $query_image_output = `$query_image`;
-	notify($ERRORS{'OK'}, 0, "getting size of image: $query_image_output");
-	my $size;
-        if ($query_image_output =~ m/(\d{1,3}\.\d{1,2})/g)
-        {
-                $size = $1;
-                notify($ERRORS{'OK'}, 0, "size of image: $size");
-                return int($size);
-        }
+	notify($ERRORS{'OK'}, 0, "There is no size information of images in NOVA APIs");
 
 	return;
 } ## end sub get_image_size
@@ -668,12 +638,10 @@ sub get_image_size {
  Description : load environment profile and set global environemnt variables 
 
 example: openstack.conf
-"EC2_URL" => "http://152.14.130.55:8773/services/Cloud",
-"EC2_ACCESS_KEY" => "ec873ea63f884294b0b4db7d93922472",
-"EC2_SECRET_KEY" => "9e15cdcd991641738120a8bac74774cd",
-"OS_TENANT_NAME" => "admin",
-"OS_USERNAME" => "admin",
-"OS_AUTH_URL" => "http://152.14.130.55:5000/v2.0/",
+"os_tenant_name" => "vcl",
+"os_username" => "vcl",
+"os_password" => "vclpassword",
+"os_auth_url" => "http://152.14.130.55:5000/v2.0/",
 
 
 =cut
