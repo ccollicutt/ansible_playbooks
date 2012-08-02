@@ -154,7 +154,8 @@ sub load {
 	# Instances have the ip instantly when it use FlatNetworkManager
 	# Need to wait for copying images from repository or cache to instance directory
 	# 15G for 3 to 5 minutes (depends on systems)
-	sleep 300;
+	#sleep 300;
+	sleep 100;
 
 	# Call post_load 
 	if ($self->os->can("post_load")) {
@@ -202,13 +203,18 @@ sub capture {
         if(_pingnode($computer_shortname))
         {
 		$instance_id = $self->_get_instance_id;
+		notify($ERRORS{'OK'}, 0, "instance id: $instance_id is done");
 		if(!$instance_id)
 		{
 			notify($ERRORS{'DEBUG'}, 0, "unable to get instance id for $computer_shortname");
 			return 0;
 		}
         }
-	
+	else {
+		notify($ERRORS{'DEBUG'}, 0, "unable to ping to $computer_shortname");
+		return 0;
+	}
+		
         if($self->_prepare_capture)
 	{
 		notify($ERRORS{'OK'}, 0, "Prepare_Capture for $computer_shortname is done");
@@ -266,7 +272,7 @@ sub _image_create{
                 $new_image_name = $openstack_image_id .'-v'. $image_version;
                 notify($ERRORS{'OK'}, 0, "The Openstack Image ID:$openstack_image_id");
                 notify($ERRORS{'OK'}, 0, "The New Image Name:$new_image_name");
-                return $openstack_image_id;
+                return $new_image_name;
         }
         else
         {
@@ -420,8 +426,8 @@ sub _wait_for_copying_image {
                 $loop--;
         }
         RELOAD:
-        notify($ERRORS{'OK'}, 0, "Sleep until image is available");
-        sleep 300;
+        #notify($ERRORS{'OK'}, 0, "Sleep until image is available");
+        sleep 30;
 	
 	return 1;
 }
@@ -620,11 +626,12 @@ sub does_image_exist {
 
 sub get_image_size {
 	my $self = shift;
-	if (ref($self) !~ /openstack/i) {
+	if (ref($self) !~ /open/i) {
 		notify($ERRORS{'CRITICAL'}, 0, "subroutine was called as a function, it must be called as a class method");
 		return 0;
 	}
-	notify($ERRORS{'OK'}, 0, "There is no size information of images in NOVA APIs");
+ 
+        notify($ERRORS{'OK'}, 0, "No image size information in Openstack");
 
 	return;
 } ## end sub get_image_size
@@ -638,10 +645,10 @@ sub get_image_size {
  Description : load environment profile and set global environemnt variables 
 
 example: openstack.conf
-"os_tenant_name" => "vcl",
-"os_username" => "vcl",
-"os_password" => "vclpassword",
-"os_auth_url" => "http://152.14.130.55:5000/v2.0/",
+"os_tenant_name" => "admin",
+"os_username" => "admin",
+"os_password" => "adminpassword",
+"os_auth_url" => "http://openstack_nova_url:5000/v2.0/",
 
 
 =cut

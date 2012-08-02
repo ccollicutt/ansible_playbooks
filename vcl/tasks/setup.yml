@@ -2,8 +2,8 @@
 #
 # Disable selinux
 #
-- name: temporarily disable selinux
-  action: command /usr/sbin/setenforce 0
+#- name: temporarily disable selinux
+#  action: command /usr/sbin/setenforce 0
 - name: disable selinux completely
   action: shell /bin/sed -i 's|SELINUX=enforcing|SELINUX=disabled|' /etc/sysconfig/selinux
 #
@@ -30,6 +30,11 @@
     - refresh yum cache
 - name: make yum cache again (could take a while)
   action: shell /usr/bin/yum clean all; /usr/bin/yum makecache
+#
+# uninstall dhclient if it's installed
+# 
+- name: uninstall dhclient if it's installed
+  action: yum pkg=dhclient state=removed
 #
 # Make sure vcl-* are installed
 #

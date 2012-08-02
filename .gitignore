@@ -1,2 +1,3 @@
 *.swp
 vcl/vars/main.yml
+vcl/ansible_hosts

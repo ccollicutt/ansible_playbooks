@@ -4,4 +4,4 @@
 - name: create a vcl database user
   action: command /usr/bin/mysql -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE TEMPORARY TABLES ON $vcldb.* TO '$vclusername'@'localhost' IDENTIFIED BY '$vcluserpassword'"
 - name: import vcl database
-  action: shell /usr/bin/mysql --user=root vcl < /usr/share/doc/vcl-2.2.1/vcl.sql
+  action: shell /usr/bin/mysql --user=root vcl < /usr/share/doc/vcl-2.3/vcl.sql
