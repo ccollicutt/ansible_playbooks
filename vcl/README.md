@@ -8,8 +8,16 @@ There is a [blog post](http://www.cybera.ca/tech-radar/first-look-ansible) that 
 RPM
 ---
 
-Note that this playbook installs VCL via custom RPMs. The spec file for the RPMs can be found [here](https://github.com/cybera/rpmspecs/blob/master/vcl.spec)
+Note that this playbook installs VCL via custom RPMs from a [custom RPM repository](http://packages.serverascode.com/mrepo). The spec file for the RPMs can be found [here](https://github.com/cybera/rpmspecs/blob/master/vcl.spec).
 
+In a production environment you may want to either create your own RPMs based on that spec file or do some sort of verification proccess.
+
+Ansible
+-------
+
+Note that ansible is being installed from a [custom RPM repository](http://packages.serverascode.com/mrepo) because it seems like the ansible RPM in EPEL doesn't seem to handle templates well.
+
+In a production environment you may want to install ansible from your own repository, or perhaps at this point the EPEL ansible RPM will be a later version that does not have templating issues.
 
 Via Vagrant
 -------------
