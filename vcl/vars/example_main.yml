@@ -7,9 +7,7 @@ vcldb: vcl
 vclusername: vcluser
 vcluserpassword: CHANGEME
 pemkey: CHANGEME 
-mcryptkey: CHANGEME 
-# mcryptiv must be 8 hex chars!
-mcryptiv: CHANGEME 
+cryptkey: CHANGEME 
 
 #
 # conf.php variables
