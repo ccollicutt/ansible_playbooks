@@ -36,10 +36,11 @@ EOANSIBLE_HOSTS
 
 fi
 
-# Not all that helpful unless running as root
+# Not all that helpful unless actually running as root, ie. not sudo
 export ANSIBLE_HOSTS=`pwd`/ansible_hosts
 
 # Add a new ssh for vagrant and stuff into root's authorized_keys file
+# so that ansible has something to ssh into
 if [ ! -e /root/.ssh/authorized_keys ]; then
 	mkdir /root/.ssh
 	chmod 700 /root/.ssh
