@@ -10,7 +10,7 @@ RPM
 
 Note that this playbook installs VCL via custom RPMs from a [custom RPM repository](http://packages.serverascode.com/mrepo). The spec file for the RPMs can be found [here](https://github.com/cybera/rpmspecs/blob/master/vcl.spec).
 
-In a production environment you may want to either create your own RPMs based on that spec file or do some sort of verification proccess.
+In a production environment you may want to either create your own RPMs based on that spec file or perform some sort of verification process.
 
 Ansible
 -------
