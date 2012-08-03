@@ -40,3 +40,5 @@ centos6$ ansible -m ping 127.0.0.1 #test connecitivity to root@localhost
 centos6$ ansible-playbook all.yml #and wait...
 ```
 
+Finally you may need to configure your /etc/hosts file with the IP and host and domain.
+
