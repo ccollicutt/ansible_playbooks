@@ -7,6 +7,5 @@
     - include: tasks/setup.yml
     - include: tasks/init.yml
     - include: tasks/initdb.yml
-    - include: tasks/openstack.yml
   handlers:
     - include: handlers/setup.yml
