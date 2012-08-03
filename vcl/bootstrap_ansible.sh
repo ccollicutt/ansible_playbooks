@@ -7,12 +7,12 @@ if [[ $UID -ne 0 ]]; then
     exit 1
 fi
 
-if ! rpm -qa | grep epel-release > /dev/null; then
+if ! rpm -qa epel-release > /dev/null; then
     rpm -ivh http://fedora.mirror.nexicom.net/epel/6/i386/epel-release-6-7.noarch.rpm
     NEW_REPO=yes
 fi
 
-if ! rpm -qa | grep rpmforge > /dev/null; then
+if ! rpm -qa rpmforge-release > /dev/null; then
 	rpm -ivh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
 	NEW_REPO=yes
 fi
@@ -23,6 +23,7 @@ if [ "$NEW_REPO" == "yes" ]; then
 fi
 
 if ! rpm -qa ansible > /dev/null ; then
+	# Should come from rpmforge
     yum install -y ansible
 fi
 
@@ -35,8 +36,10 @@ EOANSIBLE_HOSTS
 
 fi
 
+# Not all that helpful unless running as root
 export ANSIBLE_HOSTS=`pwd`/ansible_hosts
 
+# Add a new ssh for vagrant and stuff into root's authorized_keys file
 if [ ! -e /root/.ssh/authorized_keys ]; then
 	mkdir /root/.ssh
 	chmod 700 /root/.ssh
