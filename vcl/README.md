@@ -3,7 +3,7 @@ Apache VCL Playbook
 
 This playbook will install Apache VCL 2.3 on a single CentOS 6 host.
 
-There is a "blog post":http://www.cybera.ca/tech-radar/first-look-ansible that covers the basics of installing VCL using this playbook.
+There is a [blog post](http://www.cybera.ca/tech-radar/first-look-ansible) that describes a bit about how to install VCL with this playbook, though it is a bit older now.
 
 Using Vagrant
 -------------
