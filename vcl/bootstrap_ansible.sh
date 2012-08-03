@@ -7,24 +7,24 @@ if [[ $UID -ne 0 ]]; then
     exit 1
 fi
 
-if ! rpm -qa epel-release > /dev/null; then
+if ! rpm -qa | grep epel-release > /dev/null; then
     rpm -ivh http://fedora.mirror.nexicom.net/epel/6/i386/epel-release-6-7.noarch.rpm
     NEW_REPO=yes
 fi
 
-if ! rpm -qa rpmforge-release > /dev/null; then
+if ! rpm -qa | grep rpmforge-release > /dev/null; then
 	rpm -ivh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
 	NEW_REPO=yes
 fi
 
 if [ "$NEW_REPO" == "yes" ]; then
 	yum clean all
-	yum makcecache
+	yum makecache
 fi
 
-if ! rpm -qa ansible > /dev/null ; then
+if ! rpm -qa | grep ansible > /dev/null ; then
 	# Should come from rpmforge
-    yum install -y ansible
+    yum localinstall -y --nogpg http://packages.serverascode.com/mrepo/custom-centos6-noarch/RPMS.all/ansible-0.5-1.el6.noarch.rpm 
 fi
 
 if [ ! -e ./ansible_hosts ]; then

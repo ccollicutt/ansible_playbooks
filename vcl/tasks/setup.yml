@@ -3,7 +3,7 @@
 # Disable selinux
 #
 - name: temporarily disable selinux
-  action: command /usr/sbin/setenforce 0
+  action: shell echo 0 > /selinux/enforce
 - name: disable selinux completely
   action: shell /bin/sed -i 's|SELINUX=enforcing|SELINUX=disabled|' /etc/sysconfig/selinux
 #

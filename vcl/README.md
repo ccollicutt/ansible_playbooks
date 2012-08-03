@@ -21,6 +21,7 @@ vagrant_host$ git clone ${thisrepo}
 vagrant_host$ vagrant up #box will build...
 vagrant_host$ vagrant ssh
 centos6$ cd /vagrant/ansible_playbooks/vcl
+centos6$ vi ./bootstrap_ansible.sh #take a look at what it's doing as it's going to be run as root
 centos6$ sudo ./bootstrap_ansible.sh #must run as root
 centos6$ cp vars/example-main.yml vars/main.yml
 centos6$ vi vars/main.yml #edit the file
