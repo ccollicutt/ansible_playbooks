@@ -8,8 +8,6 @@ There is a [blog post](http://www.cybera.ca/tech-radar/first-look-ansible) that 
 Using Vagrant
 -------------
 
-* Init a CentOS6 vagrant image
-
 ```shell
 vagrant_host$ mkdir some_new_vagrant_box; cd some_new_vagrant_box
 vagrant_host$ vagrant init centos6 #assuming you have a CentOS 6 box
