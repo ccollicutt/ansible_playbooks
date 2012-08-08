@@ -6,6 +6,10 @@
 # - need volume group called nova-volumes
 # - start mysql
 
+#
+# Following: http://www.hastexo.com/resources/docs/installing-openstack-essex-20121-ubuntu-1204-precise-pangolin
+# 
+
 - name: apt-get update
   action: command /usr/bin/apt-get update
 - name: install various packages
