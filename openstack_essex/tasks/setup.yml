@@ -1,0 +1,54 @@
+---
+# todo 
+# - start tgt
+# - ntp setup?
+# - restart networking
+# - need volume group called nova-volumes
+# - start mysql
+
+- name: apt-get update
+  action: command /usr/bin/apt-get update
+- name: install various packages
+  action: apt pkg=$item state=installed
+  with_items:
+    - ntp
+    - tgt
+    - open-iscsi
+    - open-iscsi-utils
+    - bridge-utils
+    - rabbitmq-server
+    - memcached
+    - python-memcache
+    - kvm
+    - libvirt-bin
+    - mysql-server
+    - python-mysqldb
+    - keystone 
+    - python-keystone 
+    - python-keystoneclient
+
+# Should be inline module perhaps?
+- name: tell mysql to listen on 0.0.0.0
+  action: shell sed -i 's|127\.0\.0\.1|0\.0\.0\.0|g' /etc/mysql/my.cnf
+
+- name: start mysql
+  action: service name=mysql state=started enabled=yes
+
+- name: create databases
+  action: mysql_db db=${item} state=present
+  with_items:
+    - nova
+    - glance
+    - keystone
+
+- name: setup mysql databases and users
+  action: mysql_user name=${item}dbadmin password=${mysql_user_pw} priv=${item}.*:ALL state=present
+  with_items: 
+    - nova
+    - glance
+    - keystone
+
+
+
+
+

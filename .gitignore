@@ -1,3 +1,4 @@
 *.swp
 vcl/vars/main.yml
 vcl/ansible_hosts
+openstack_essex/vars/main.yml
