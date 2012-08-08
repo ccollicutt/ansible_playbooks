@@ -5,7 +5,7 @@ if [[ $UID -ne 0 ]]; then
     exit 1
 fi
 
-if ! which > /dev/null ; then
+if ! which ansible > /dev/null ; then
 	pushd /vagrant/ansible
 		apt-get install python-yaml python-paramiko python-jinja2 make -y
 		make install
