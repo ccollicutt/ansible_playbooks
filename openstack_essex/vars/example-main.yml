@@ -1,0 +1,4 @@
+---
+mysql_user_pw: CHANGEME
+keystone_admin_token: CHANGEME 
+admin_password: CHANGEME 

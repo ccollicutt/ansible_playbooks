@@ -1,0 +1,8 @@
+---
+- hosts: openstack
+  user: root
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - include: tasks/keystone.yml
+
