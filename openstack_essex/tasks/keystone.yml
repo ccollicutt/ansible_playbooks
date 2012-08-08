@@ -10,7 +10,7 @@
 
 # Might need to set dbadmin name in vars/main.yml
 - name: configure keystone's db connection
-  action: command sed -i 's|sql_connection = sqlite:////var/lib/keystone/keystone.db|sql_connection = mysql://keystonedbadmin:${mysql_user_pw}@${ansible_eth0.ipv4.address}/keystone|g' /etc/keystone/keystone.conf
+  action: command sed -i 's|connection = sqlite:////var/lib/keystone/keystone.db|connection = mysql://keystonedbadmin:${mysql_user_pw}@${ansible_eth0.ipv4.address}/keystone|g' /etc/keystone/keystone.conf
 
 - name: configure keystone's admin token
   action: command sed -i 's|admin_token = ADMIN|admin_token = ${keystone_admin_token}|g' /etc/keystone/keystone.conf
@@ -31,4 +31,4 @@
   action: copy src=files/endpoints.sh dest=/usr/local/bin/endpoints.sh mode=0755
 
 - name: setup endpoints via endpoints.sh
-  action: shell /usr/local/bin/endpoints.sh -m ${ansible_eth0.ipv4.address} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${ansible_eth0.ipv4.address} -R RegionOne -E "http://localhost:35357/v2.0" -T ${keystone_admin_token}
+  action: shell /usr/local/bin/endpoints.sh -m ${ansible_eth0.ipv4.address} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${ansible_eth0.ipv4.address} -S 10.0.2.50 -R RegionOne -E "http://localhost:35357/v2.0" -T ${keystone_admin_token}

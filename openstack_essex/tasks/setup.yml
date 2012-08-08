@@ -29,8 +29,8 @@
 - name: tell mysql to listen on 0.0.0.0
   action: shell sed -i 's|127\.0\.0\.1|0\.0\.0\.0|g' /etc/mysql/my.cnf
 
-- name: start mysql
-  action: service name=mysql state=started enabled=yes
+- name: restart mysql
+  action: service name=mysql state=restarted enabled=yes
 
 - name: create databases
   action: mysql_db db=${item} state=present

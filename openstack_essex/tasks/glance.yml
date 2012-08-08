@@ -19,11 +19,16 @@
 #- name: configure glance admin_password
 #  action: command sed -i 's|admin_password = %SERVICE_PASSWORD%|admin_password = ${admin_password}|g' /etc/glance/glance-api-paste.ini
 
+# Note that this is sql_connection 
 - name: configure glances's db connection
   action: command sed -i 's|sql_connection = sqlite:////var/lib/glance/glance.sqlite|sql_connection = mysql://glancedbadmin:${mysql_user_pw}@${ansible_eth0.ipv4.address}/glance|g' /etc/glance/glance-registry.conf
 
-- name: copy over glance-api-paste.conf template
+# could do with items here
+- name: copy over glance-api-paste.ini template
   action: template src=templates/glance-api-paste.j2 dest=/etc/glance/glance-api-paste.ini
+
+- name: copy over glance-regsitry-paste.ini template
+  action: template src=templates/glance-registry-paste.j2 dest=/etc/glance/glance-registry-paste.ini
 
 - name: tell glance registry and api to use keystone for authentication
   action: shell echo "[paste_deploy] \nflavor = keystone" >> /etc/glance/glance-${item}.conf
@@ -42,6 +47,6 @@
   action: command service glance-registry restart
 
 - name: copy over openstackrc.sh to vagrant's home dir
-  action: template src=templates/openstackrc.j2 dest=/home/vagrant/openstackrc.sh mode=0640 
+  action: template src=templates/openstackrc.j2 dest=/home/vagrant/openstackrc.sh mode=0640 owner=vagrant group=vagrant
 
 
