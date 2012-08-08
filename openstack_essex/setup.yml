@@ -5,3 +5,5 @@
     - vars/main.yml
   tasks:
     - include: tasks/setup.yml
+    - include: tasks/keystone.yml
+    - include: tasks/glance.yml

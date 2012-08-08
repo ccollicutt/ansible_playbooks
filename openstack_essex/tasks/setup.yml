@@ -23,9 +23,7 @@
     - libvirt-bin
     - mysql-server
     - python-mysqldb
-    - keystone 
-    - python-keystone 
-    - python-keystoneclient
+
 
 # Should be inline module perhaps?
 - name: tell mysql to listen on 0.0.0.0
@@ -42,13 +40,10 @@
     - keystone
 
 - name: setup mysql databases and users
-  action: mysql_user name=${item}dbadmin password=${mysql_user_pw} priv=${item}.*:ALL state=present
+  action: mysql_user name=${item}dbadmin password=${mysql_user_pw} priv=${item}.*:ALL state=present host='%'
   with_items: 
     - nova
     - glance
     - keystone
-
-
-
 
 

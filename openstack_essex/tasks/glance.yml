@@ -1,0 +1,47 @@
+- name: apt-get update
+  action: command /usr/bin/apt-get update
+- name: install various glance packages
+  action: apt pkg=$item state=installed
+  with_items:
+    - glance 
+    - glance-api 
+    - glance-client 
+    - glance-common 
+    - glance-registry 
+    - python-glance
+
+#- name: configure glance admin_tenant_name
+#  action: command sed -i 's|admin_tenant_name = %SERVICE_TENANT_NAME%|admin_tenant_name = service|g' /etc/glance/glance-api-paste.ini
+
+#- name: configure glance admin_user
+#  action: command sed -i 's|admin_user = %SERVICE_USER%|admin_user = glance|g' /etc/glance/glance-api-paste.ini
+
+#- name: configure glance admin_password
+#  action: command sed -i 's|admin_password = %SERVICE_PASSWORD%|admin_password = ${admin_password}|g' /etc/glance/glance-api-paste.ini
+
+- name: configure glances's db connection
+  action: command sed -i 's|sql_connection = sqlite:////var/lib/glance/glance.sqlite|sql_connection = mysql://glancedbadmin:${mysql_user_pw}@${ansible_eth0.ipv4.address}/glance|g' /etc/glance/glance-registry.conf
+
+- name: copy over glance-api-paste.conf template
+  action: template src=templates/glance-api-paste.j2 dest=/etc/glance/glance-api-paste.ini
+
+- name: tell glance registry and api to use keystone for authentication
+  action: shell echo "[paste_deploy] \nflavor = keystone" >> /etc/glance/glance-${item}.conf
+  with_items:
+    - registry
+    - api
+
+- name: syncronize glance db
+  action: shell glance-manage version_control 0; glance-manage db_sync
+
+# glance-api has no status so can't do service
+- name: restart glance-api
+  action: command service glance-api restart
+
+- name: restart glance-registry
+  action: command service glance-registry restart
+
+- name: copy over openstackrc.sh to vagrant's home dir
+  action: template src=templates/openstackrc.j2 dest=/home/vagrant/openstackrc.sh mode=0640 
+
+

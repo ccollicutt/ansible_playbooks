@@ -1,0 +1,34 @@
+- name: apt-get update
+  action: command /usr/bin/apt-get update
+- name: install various keystone packages
+  action: apt pkg=$item state=installed
+  with_items:
+    - python-mysqldb
+    - keystone 
+    - python-keystone 
+    - python-keystoneclient
+
+# Might need to set dbadmin name in vars/main.yml
+- name: configure keystone's db connection
+  action: command sed -i 's|sql_connection = sqlite:////var/lib/keystone/keystone.db|sql_connection = mysql://keystonedbadmin:${mysql_user_pw}@${ansible_eth0.ipv4.address}/keystone|g' /etc/keystone/keystone.conf
+
+- name: configure keystone's admin token
+  action: command sed -i 's|admin_token = ADMIN|admin_token = ${keystone_admin_token}|g' /etc/keystone/keystone.conf
+
+- name: restart keystone
+  action: shell service keystone stop; service keystone start
+
+- name: init keystone db
+  action: command /usr/bin/keystone-manage db_sync
+
+- name: copy over keystone_data.sh script from template
+  action: template src=templates/keystone_data.j2 dest=/usr/local/bin/keystone_data.sh mode=0755
+
+- name: run keystone_data.sh
+  action: command /usr/local/bin/keystone_data.sh
+
+- name: copy endpoints.sh file
+  action: copy src=files/endpoints.sh dest=/usr/local/bin/endpoints.sh mode=0755
+
+- name: setup endpoints via endpoints.sh
+  action: shell /usr/local/bin/endpoints.sh -m ${ansible_eth0.ipv4.address} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${ansible_eth0.ipv4.address} -R RegionOne -E "http://localhost:35357/v2.0" -T ${keystone_admin_token}
