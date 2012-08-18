@@ -1,0 +1,25 @@
+---
+- name: install required cobbler packages
+  action: apt pkg=$item state=installed
+  with_items:
+    #- tftpd
+    - debmirror
+    - dnsmasq
+   # - apt-cacher-ng
+
+- name: copy over dnsmasq.conf template
+  action: template src=templates/dnsmasq.j2 dest=/etc/dnsmasq.conf
+
+- name: grab netboot files for Ubuntu 12.04
+  action: get_url url=http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-i386/current/images/netboot/netboot.tar.gz dest=/var/tmp/netboot.tar.gz
+
+- name: create /tftp
+  action: file dest=/tftp state=directory owner=root group=root mode=0755
+
+- name: untar netboot.tar.gz into /tftp
+  action: command tar -zxvf /var/tmp/netboot.tar.gz -C /tftp
+
+# Doesn't seem to work with service
+- name: restart dnsmasq
+  action: command service dnsmasq restart
+

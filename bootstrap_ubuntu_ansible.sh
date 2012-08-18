@@ -6,6 +6,12 @@ if [[ $UID -ne 0 ]]; then
 fi
 
 if ! which ansible > /dev/null ; then
+	if [ ! -e /vagrant/ansible ]; then
+		pushd /vagrant
+			apt-get install git -y
+			git clone git://github.com/ansible/ansible.git || exit 1
+		popd
+	fi
 	pushd /vagrant/ansible
 		apt-get install python-yaml python-paramiko python-jinja2 make -y
 		make install

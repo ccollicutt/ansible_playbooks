@@ -1,0 +1,7 @@
+dhcp-range=192.168.0.50,192.168.0.150,255.255.255.0,12h
+#dhcp-host=11:22:33:44:55:66,192.168.0.2
+dhcp-option=option:ntp-server,192.168.0.10
+enable-tftp
+tftp-root=/tftp
+interface=eth0
+dhcp-boot=pxelinux.0
