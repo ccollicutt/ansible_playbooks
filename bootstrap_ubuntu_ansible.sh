@@ -27,6 +27,10 @@ EOANSIBLE_HOSTS
 
 fi
 
+if ! grep ANSIBLE_HOSTS /home/vagrant/.bashrc; then
+	echo "export ANSIBLE_HOSTS=/home/vagrant/ansible_hosts" >> /home/vagrant/.bashrc
+fi
+
 # Not all that helpful unless actually running as root, ie. not sudo
 export ANSIBLE_HOSTS=`pwd`/ansible_hosts
 

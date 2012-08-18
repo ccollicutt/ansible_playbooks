@@ -1,5 +1,5 @@
 ---
-- name: install required cobbler packages
+- name: install required pxe boot packages
   action: apt pkg=$item state=installed
   with_items:
     #- tftpd
