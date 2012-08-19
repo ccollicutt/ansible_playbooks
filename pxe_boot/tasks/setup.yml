@@ -5,13 +5,14 @@
     #- tftpd
     - debmirror
     - dnsmasq
-   # - apt-cacher-ng
+    - apache2
+    #- apt-cacher-ng
 
 - name: copy over dnsmasq.conf template
   action: template src=templates/dnsmasq.j2 dest=/etc/dnsmasq.conf
 
 - name: grab netboot files for Ubuntu 12.04
-  action: get_url url=http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-i386/current/images/netboot/netboot.tar.gz dest=/var/tmp/netboot.tar.gz
+  action: get_url url=http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-amd64/current/images/netboot/netboot.tar.gz dest=/var/tmp/netboot.tar.gz
 
 - name: create /tftp
   action: file dest=/tftp state=directory owner=root group=root mode=0755
@@ -19,7 +20,16 @@
 - name: untar netboot.tar.gz into /tftp
   action: command tar -zxvf /var/tmp/netboot.tar.gz -C /tftp
 
+- name: copy over syslinux.cfg
+  action: copy src=files/syslinux.cfg dest=/tftp/ubuntu-installer/amd64/boot-screens/syslinux.cfg
+
 # Doesn't seem to work with service
 - name: restart dnsmasq
   action: command service dnsmasq restart
+
+- name: ensure apache2 is running
+  action: service name=apache2 state=running
+
+- name: copy over preseeds
+  action: copy src=files/cc.preseed dest=/var/www/cc.preseed
 
