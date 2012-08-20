@@ -6,6 +6,12 @@ if [[ $UID -ne 0 ]]; then
 fi
 
 if ! which ansible > /dev/null ; then
+	if [ ! -e /vagrant/ansible ]; then
+		pushd /vagrant
+			apt-get install git -y
+			git clone git://github.com/ansible/ansible.git || exit 1
+		popd
+	fi
 	pushd /vagrant/ansible
 		apt-get install python-yaml python-paramiko python-jinja2 make -y
 		make install
@@ -19,6 +25,10 @@ cat << EOANSIBLE_HOSTS > ./ansible_hosts
 127.0.0.1
 EOANSIBLE_HOSTS
 
+fi
+
+if ! grep ANSIBLE_HOSTS /home/vagrant/.bashrc; then
+	echo "export ANSIBLE_HOSTS=/home/vagrant/ansible_hosts" >> /home/vagrant/.bashrc
 fi
 
 # Not all that helpful unless actually running as root, ie. not sudo
