@@ -73,6 +73,13 @@
   action: yum pkg=mysql-server state=installed
 - name: make sure mysql is running  
   action: service name=mysqld state=running
+
+- name: ensure there is a mysql backup directory
+  action: file dest=/var/lib/backups/mysql state=directory owner=root group=root mode=0640
+
+- name: copy over mysql backup script to cron (should be in an rpm...future work)
+  action: copy src=files/mysql_backup.sh dest=/etc/cron.daily/mysql_backup.cron owner=root group=root mode=0755
+
 #
 # VCL web GUI configuration
 #
