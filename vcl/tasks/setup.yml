@@ -35,15 +35,33 @@
 # 
 - name: uninstall dhclient if it's installed
   action: yum pkg=dhclient state=removed
-#
+
+# NOTE: This is the normal version
 # Make sure vcl-* are installed
 #
 - name: make sure vcl is installed
   action: yum pkg=vcl state=installed
+  only_if: '$is_normal_version'
 - name: make sure vcl-web is installed
   action: yum pkg=vcl-web state=installed
+  only_if: '$is_normal_version'
 - name: make sure vcl-managementnode is installed
   action: yum pkg=vcl-managementnode state=installed
+  only_if: '$is_normal_version'
+
+# NOTE: This is the cybera version...
+# Make sure vcl-cybera-* are installed
+#
+- name: make sure vcl-cybera is installed
+  action: yum pkg=vcl-cybera state=installed
+  only_if: '$is_cybera_version'
+- name: make sure vcl-cybera-web is installed
+  action: yum pkg=vcl-cybera-web state=installed
+  only_if: '$is_cybera_version'
+- name: make sure vcl-cybera-managementnode is installed
+  action: yum pkg=vcl-cybera-managementnode state=installed
+  only_if: '$is_cybera_version'
+
 #
 # Iptables
 #
