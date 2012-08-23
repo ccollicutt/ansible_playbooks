@@ -4,3 +4,4 @@ vcl/ansible_hosts
 openstack_essex/vars/main.yml
 openstack_essex/files/ubuntu-12.04-server-cloudimg-amd64-disk1.img
 *ansible_hosts
+*.iso

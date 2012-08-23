@@ -20,7 +20,7 @@ logger server-farm.early_command partition configuration starting
 # Downloading parted, partprobe, and necessary libraries
 mkdir /tmp/setup
 cd /tmp/setup
-wget http://10.0.2.15/setup.tar
+wget http://192.168.33.2/setup.tar
 tar xf setup.tar
 export PATH=$PATH:/tmp/setup
 export LD_LIBRARY_PATH=/tmp/setup/lib
@@ -58,7 +58,7 @@ n
 p
 2
 
-+20480M
++1024M
 n
 e
 
@@ -145,7 +145,7 @@ pvcreate /dev/md2
 vgcreate nova-volumes /dev/md2
 
 # Create a lv for nova-instances
-lvcreate -L 500G -n nova-instances nova-volumes
+lvcreate -L 10G -n nova-instances nova-volumes
 mkfs.ext4 /dev/mapper/nova--volumes-nova--instances
 
 # Mounting filesystems

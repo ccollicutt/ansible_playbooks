@@ -1,4 +1,11 @@
 ---
+
+#
+# Todo:
+# - use some kind of caching?
+# - install acpid?
+# - get netboot from cd instead of downloading it?
+
 - name: install required pxe boot packages
   action: apt pkg=$item state=installed
   with_items:
@@ -6,16 +13,51 @@
     - debmirror
     - dnsmasq
     - apache2
-    #- apt-cacher-ng
+    - apt-cacher-ng
 
 - name: copy over dnsmasq.conf template
   action: template src=templates/dnsmasq.j2 dest=/etc/dnsmasq.conf
 
+- name: ensure apt-cacher-ng is running
+  action: service name=apt-cacher-ng state=started
+
+  # oops, could grab netboot from cd...
+  # could this lead to a mismatch of kernel/installer...???
 - name: grab netboot files for Ubuntu 12.04
   action: get_url url=http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-amd64/current/images/netboot/netboot.tar.gz dest=/var/tmp/netboot.tar.gz
 
-- name: create /tftp
+- name: create /tftp directory
   action: file dest=/tftp state=directory owner=root group=root mode=0755
+
+#- name: copy over ubuntu iso file (you probably have one of these somewhere...)
+#  action: copy src=files/ubuntu-12.04-alternate-amd64.iso dest=/var/tmp/ubuntu-12.04-alternate-amd64.iso
+
+#- name: make a mount point to initially mount the iso file
+#  action: file dest=/var/www/ubuntu state=directory owner=root group=root mode=0755
+#  ignore_errors: True 
+
+  # ansible mount module doesn't seem to like the iso device, so manual...
+#- name: mount iso to /var/www/ubuntu
+#  action: command mount -o loop /var/tmp/ubuntu-12.04-alternate-amd64.iso /var/www/ubuntu
+#  ignore_errors: True
+
+  # See http://syk.li/2010/08/ubuntu-kickstart-and-the-corrupt-packages-message/
+  # and http://administratosphere.wordpress.com/2011/04/29/ubuntu-kickstart-installs-and-corrupt-packages-file/
+#- name: make a directory to setup the Packages.gz fix into
+#  action: file dest=/var/tmp/packages.bugfix state=directory owner=root group=root mode=0755
+
+#- name: copy files from iso to bugfix directory
+#  action: shell cp /var/www/ubuntu/dists/precise/restricted/binary-amd64/* /var/tmp/packages.bugfix
+#  ignore_errors: True
+
+#- name: touch Packages file into existance
+#  action: command touch /var/tmp/packages.bugfix/Packages
+#  ignore_errors: True
+
+  # And finally mount that with a bind
+#- name: mount bind the ubuntu iso and the /var/tmp/packages.bugfix directory
+#  action: command mount --bind /var/tmp/packages.bugfix /var/www/ubuntu/dists/precise/restricted/binary-amd64
+#  ignore_errors: True
 
 - name: untar netboot.tar.gz into /tftp
   action: command tar -zxvf /var/tmp/netboot.tar.gz -C /tftp
@@ -30,6 +72,14 @@
 - name: ensure apache2 is running
   action: service name=apache2 state=running
 
-- name: copy over preseeds
-  action: copy src=files/cc.preseed dest=/var/www/cc.preseed
+- name: copy over various preseeding files
+
+  action: copy src=files/$item dest=/var/www/$item
+  with_items:
+    - cc.preseed
+    - early_command_cc
+    - early_command_node
+    - early_command_cc_phy
+    - setup.tar
+    - network-config.sh
 
