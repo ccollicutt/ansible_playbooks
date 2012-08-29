@@ -26,8 +26,8 @@ EOANSIBLE_HOSTS
 
 fi
 
-if ! grep ANSIBLE_HOSTS ~/.bashrc; then
-	echo "export ANSIBLE_HOSTS=$HOME/ansible_hosts" >> ~/.bashrc
+if ! grep ANSIBLE_HOSTS $HOME/.bashrc; then
+	echo "export ANSIBLE_HOSTS=$HOME/ansible_hosts" >> $HOME/.bashrc
 fi
 
 # Not all that helpful unless actually running as root, ie. not sudo
