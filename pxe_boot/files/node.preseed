@@ -6,7 +6,7 @@ d-i console-setup/layoutcode string us
 # NETWORKING SNIPPET
 #
 
-d-i preseed/early_command string cd /tmp; wget http://192.168.33.2/early_command_node -O early_command; \
+d-i preseed/early_command string cd /tmp; wget http://192.168.255.101/early_command_node_phy2 -O early_command; \
 	chmod 755 early_command; \
 	echo /tmp/early_command installer >> /var/lib/dpkg/info/download-installer.postinst;
 
@@ -20,7 +20,7 @@ d-i netcfg/wireless_wep string
 #
 
 d-i mirror/country string manual
-d-i mirror/http/hostname string 192.168.33.2:3142
+d-i mirror/http/hostname string 192.168.255.101:3142
 d-i mirror/http/directory string /ubuntu
 d-i mirror/http/proxy string
 d-i mirror/suite string precise

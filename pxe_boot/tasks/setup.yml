@@ -73,13 +73,11 @@
   action: service name=apache2 state=running
 
 - name: copy over various preseeding files
-
   action: copy src=files/$item dest=/var/www/$item
   with_items:
     - cc.preseed
     - early_command_cc
     - early_command_node
-    - early_command_cc_phy
+    - early_command_cc_phy2
     - setup.tar
     - network-config.sh
-
