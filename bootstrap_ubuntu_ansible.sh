@@ -6,20 +6,21 @@ if [[ $UID -ne 0 ]]; then
 fi
 
 if ! which ansible > /dev/null ; then
-	if [ ! -e ~/ansible ]; then
+	if [ ! -e /usr/local/src/ansible ]; then
 		apt-get install git -y
-		cd ~/
-		git clone git://github.com/ansible/ansible.git || exit 1
+		pushd /usr/local/src
+			git clone git://github.com/ansible/ansible.git || exit 1
+		popd
 	fi
-	pushd ~/ansible
+	pushd /usr/local/src/ansible
 		apt-get install python-yaml python-paramiko python-jinja2 make -y
 		make install
 	popd
 fi
 
-if [ ! -e ~/ansible_hosts ]; then
+if [ ! -e /home/vagrant/ansible_hosts ]; then
 
-cat << EOANSIBLE_HOSTS > ~/ansible_hosts
+cat << EOANSIBLE_HOSTS > /home/vagrant/ansible_hosts
 [openstack]
 127.0.0.1
 EOANSIBLE_HOSTS
@@ -27,20 +28,17 @@ EOANSIBLE_HOSTS
 fi
 
 if ! grep ANSIBLE_HOSTS ~/.bashrc; then
-	echo "export ANSIBLE_HOSTS=$HOME/ansible_hosts" >> ~/.bashrc
+	echo "export ANSIBLE_HOSTS=/home/vagrant/ansible_hosts" >> /home/vagrant/.bashrc
 fi
-
-# Not all that helpful unless actually running as root, ie. not sudo
-export ANSIBLE_HOSTS=$HOME/ansible_hosts
 
 # Add a new ssh for vagrant and stuff into root's authorized_keys file
 # so that ansible has something to ssh into
 if [ ! -e /root/.ssh/authorized_keys ]; then
 	mkdir /root/.ssh
 	chmod 700 /root/.ssh
-	echo " /usr/bin/ssh-keygen -q -t dsa -C '' -N '' -f $HOME/.ssh/id_dsa"
-	/usr/bin/ssh-keygen -q -t dsa -C '' -N '' -f $HOME/.ssh/id_dsa
-	chown $UID:$GROUPS $HOME/.ssh/id_dsa*
-	cat $HOME/.ssh/id_dsa.pub >> /root/.ssh/authorized_keys
+	echo " /usr/bin/ssh-keygen -q -t dsa -C '' -N '' -f /home/vagrant/.ssh/id_dsa"
+	/usr/bin/ssh-keygen -q -t dsa -C '' -N '' -f /home/vagrant/.ssh/id_dsa
+	chown vagrant:vagrant /home/vagrant/.ssh/id_dsa*
+	cat /home/vagrant/.ssh/id_dsa.pub >> /root/.ssh/authorized_keys
 	chmod 600 /root/.ssh/authorized_keys
 fi

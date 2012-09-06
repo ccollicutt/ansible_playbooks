@@ -9,7 +9,6 @@
 #
 # Following: http://www.hastexo.com/resources/docs/installing-openstack-essex-20121-ubuntu-1204-precise-pangolin
 # 
-
 - name: apt-get update
   action: command /usr/bin/apt-get update
 - name: install various packages
@@ -27,7 +26,6 @@
     - libvirt-bin
     - mysql-server
     - python-mysqldb
-
 
 # Should be inline module perhaps?
 - name: tell mysql to listen on 0.0.0.0

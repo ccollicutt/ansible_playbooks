@@ -4,5 +4,4 @@
   vars_files:
     - vars/main.yml
   tasks:
-    - include: tasks/cc_nova.yml
-
+    - include: tasks/node_nova.yml
