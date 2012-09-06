@@ -1,0 +1,81 @@
+- name: apt-get update
+  action: command /usr/bin/apt-get update
+
+# XXX This page http://docs.openstack.org/trunk/openstack-compute/install/content/installing-the-cloud-controller.html
+# shows a couple more pacakges, such as nova-vncproxy?? XXX
+- name: install various compute node nova packages
+  action: apt pkg=$item state=installed
+  with_items:
+    - nova-common
+    - nova-compute
+#    - nova-compute-kvm
+    - nova-compute-qemu
+    - bridge-utils
+    - guestmount
+    - nova-volume
+
+
+#
+# Network
+# 
+
+# http://www.mirantis.com/blog/openstack-networking-single-host-flatdhcpmanager/
+- name: ensure eth2 is in promiscuous mode
+  action: command /sbin/ip link set eth2 promisc on
+
+#
+# Create nova-volumes based on a backing file instead of an actual device
+# 
+- name: Create openstack directory
+  action: file dest=${openstack_directory} state=directory
+
+- name: create a backing file for nova-volumes
+  action: shell touch ${openstack_directory}/backing-file; truncate -s 5G ${openstack_directory}/backing-file
+
+- name: mount the backing file as a loopback
+  action: command /sbin/losetup --show -f ${openstack_directory}/backing-file
+
+- name: create a volume group on top of that backing file
+  action: shell /sbin/vgcreate nova-volumes $(/sbin/losetup --show -f ${openstack_directory}/backing-file)
+
+#
+# Nova config
+#
+- name: copy nova.conf template over
+  action: template src=templates/nova.j2 dest=/etc/nova/nova.conf
+
+- name: copy over nova's api-paste.ini template
+  action: template src=templates/api-paste.j2 dest=/etc/nova/api-paste.ini
+
+- name: stop all nova services
+  action: command service $item stop
+  ignore_errors: True
+  with_items:
+    - nova-compute
+    - nova-volume
+
+- name: start all nova services
+  action: command service $item start
+  with_items:
+    - nova-compute
+    - nova-volume
+
+# XXX Not sure if this is needed on a compute node XXX
+#- name: sync nova-manage's db
+#  action: command nova-manage db sync
+
+- name: set permissions on /etc/nova
+  action: command chown -R nova:nova /etc/nova
+
+- name: stop all nova services again
+  action: command service $item stop
+  ignore_errors: True
+  with_items:
+    - nova-compute
+    - nova-volume
+
+- name: start all nova services again
+  action: command service $item start
+  with_items:
+    - nova-compute
+    - nova-volume

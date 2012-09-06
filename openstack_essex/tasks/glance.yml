@@ -30,12 +30,14 @@
 - name: copy over glance-regsitry-paste.ini template
   action: template src=templates/glance-registry-paste.j2 dest=/etc/glance/glance-registry-paste.ini
 
+# XXX FIXME ME - not idempotent XXX
 - name: tell glance registry and api to use keystone for authentication
   action: shell echo "[paste_deploy] \nflavor = keystone" >> /etc/glance/glance-${item}.conf
   with_items:
     - registry
     - api
 
+# XXX FIXME ME - not idempotent XXX
 - name: syncronize glance db
   action: shell glance-manage version_control 0; glance-manage db_sync
 
@@ -45,9 +47,6 @@
 
 - name: restart glance-registry
   action: command service glance-registry restart
-
-- name: copy over openstackrc.sh to vagrant's home dir
-  action: template src=templates/openstackrc.j2 dest=/home/vagrant/openstackrc.sh mode=0640 owner=vagrant group=vagrant
 
 # use bash -c because source is a builtin...might be a better way...
 - name: try running glance index
