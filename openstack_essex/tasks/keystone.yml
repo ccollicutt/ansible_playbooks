@@ -23,6 +23,10 @@
 - name: restart keystone
   action: shell service keystone stop; service keystone start
 
+#***********************************#
+# ENDPOINTS.SH and KEYSTONE_DATA.SH #
+#***********************************#
+
 # XXX NOT IDEMPOTENT XXX
 - name: init keystone db
   action: command /usr/bin/keystone-manage db_sync
@@ -40,6 +44,31 @@
 # XXX Should remove swift stuff XXX
 - name: setup endpoints via endpoints.sh
   action: shell /usr/local/bin/endpoints.sh -m ${ansible_eth1.ipv4.address} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${ansible_eth1.ipv4.address} -S 10.0.2.50 -R RegionOne -E "http://127.0.0.1:35357/v2.0" -T ${keystone_admin_token}
+
+#************************************#
+# /ENDPOINTS.SH and KEYSTONE_DATA.SH #
+#************************************#
+
+#************************************#
+# KEYSTONE_INIT                      #
+#************************************#
+
+# http://docs.openstack.org/essex/openstack-compute/install/apt/content/setting-up-tenants-users-and-roles.html
+#- name: ensure keystone-init.py is present
+#  action: copy src=files/keystone-init.py dest=/usr/local/bin//keystone-init.py owner=root group=root mode=0755
+
+#- name: ensure kestyone-config.yaml is present
+#  action: template src=templates/keystone-config.yaml dest=/usr/local/bin/keystone-config.yaml owner=root group=root mode=0600
+
+#- name: populate keystone database
+#  action: command /usr/local/bin/keystone-init.py /usr/local/bin/keystone-config.yaml
+
+#************************************#
+# /KEYSTONE_INIT                     #
+#************************************#
+
+- name: restart keystone (again)
+  action: shell service keystone stop; service keystone start
 
 - name: install curl to be able to test keystone 
   action: apt pkg=curl state=installed

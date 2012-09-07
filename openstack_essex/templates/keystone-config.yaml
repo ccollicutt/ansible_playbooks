@@ -1,0 +1,66 @@
+---
+# token is the admin_token in keystone.conf
+token:    {{ keystone_admin_token }}
+endpoint: http://{{ controller_ip }}:35357/v2.0
+
+default tenant:
+    name:        {{ default_tenant }}
+    description: {{ default_tenant_description }}
+
+# This is the admin user
+default user:
+    name:     admin
+    password: {{ admin_password }}
+
+# See: http://docs.openstack.org/essex/openstack-compute/install/content/setting-up-tenants-users-and-roles.html
+service users:
+    - name:     glance
+      password: glance
+
+    - name:     nova
+      password: nova
+
+    - name:     ec2
+      password: ec2
+
+# See: http://docs.openstack.org/essex/openstack-compute/install/content/keystone-service-endpoint-create.html
+services and endpoints:
+    - name:         keystone
+      type:         identity
+      description:  Keystone Identity Service
+      region:       RegionOne
+      publicurl:    http://{{ controller_ip }}:5000/v2.0
+      internalurl:  http://{{ controller_ip }}:5000/v2.0
+      adminurl:     http://{{ controller_ip }}:35357/v2.0
+
+    - name:         nova
+      type:         compute
+      description:  Nova Compute Service
+      region:       RegionOne
+      publicurl:    http://{{ controller_ip }}:8774/v2/%(tenant_id)s
+      internalurl:  http://{{ controller_ip }}:8774/v2/%(tenant_id)s
+      adminurl:     http://{{ controller_ip }}:8774/v2/%(tenant_id)s
+
+    - name:         volume
+      type:         volume
+      description:  Nova Volume Service
+      region:       RegionOne
+      publicurl:    http://{{ controller_ip }}:8776/v1/%(tenant_id)s
+      internalurl:  http://{{ controller_ip }}:8776/v1/%(tenant_id)s
+      adminurl:     http://{{ controller_ip }}:8776/v1/%(tenant_id)s
+
+    - name:         glance
+      type:         image
+      description:  Glance Image Service
+      region:       RegionOne
+      publicurl:    http://{{ controller_ip }}:9292/v1
+      internalurl:  http://{{ controller_ip }}:9292/v1
+      adminurl:     http://{{ controller_ip }}:9292/v1
+
+    - name:         ec2
+      type:         ec2
+      description:  EC2 Compatibility Layer
+      region:       RegionOne
+      publicurl:    http://{{ controller_ip }}:8773/services/Cloud
+      internalurl:  http://{{ controller_ip }}:8773/services/Cloud
+      adminurl:     http://{{ controller_ip }}:8773/services/Admin

@@ -4,7 +4,7 @@
   vars_files:
     - vars/main.yml
   tasks:
-    - include: tasks/setup.yml
+    - include: tasks/mysql.yml
     - include: tasks/keystone.yml
     - include: tasks/glance.yml
     - include: tasks/cc_nova.yml

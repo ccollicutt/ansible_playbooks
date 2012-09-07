@@ -10,6 +10,9 @@ if ! which ansible > /dev/null ; then
 		apt-get install git -y
 		pushd /usr/local/src
 			git clone git://github.com/ansible/ansible.git || exit 1
+			pushd ansible
+				git checkout release-0.7
+			popd
 		popd
 	fi
 	pushd /usr/local/src/ansible
@@ -42,3 +45,12 @@ if [ ! -e /root/.ssh/authorized_keys ]; then
 	cat /home/vagrant/.ssh/id_dsa.pub >> /root/.ssh/authorized_keys
 	chmod 600 /root/.ssh/authorized_keys
 fi
+
+#HOSTNAME=`hostname`
+#export ANSIBLE_HOSTS=/home/vagrant/ansible_hosts
+
+#if [ "$HOSTNAME" == "cc01" ]; then
+#	su vagrant /usr/local/bin/ansible-playbook /vagrant/ansible_playbooks/openstack_essex/controller.yml
+#elif [ "$HOSTNAME" == "node01" ]; then
+#	su vagrant /usr/local/bin/ansible-playbook /vagrant/ansible_playbooks/openstack_essex/compute.yml
+#fi
