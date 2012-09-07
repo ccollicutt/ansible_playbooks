@@ -1,5 +1,7 @@
 - name: apt-get update
   action: command /usr/bin/apt-get update
+  tags:
+    - packages
 
 - name: install various keystone packages
   action: apt pkg=$item state=installed
@@ -8,20 +10,30 @@
     - keystone 
     - python-keystone 
     - python-keystoneclient
+  tags:
+    - packages
 
 # http://docs.openstack.org/essex/openstack-compute/install/apt/content/install-keystone.html
 - name: ensure sqlite keystone database is deleted
   action: file dest=/var/lib/keystone/keystone.db state=absent
+  tags:
+    - database
 
 # Might need to set dbadmin name in vars/main.yml
 - name: configure keystone's db connection
   action: command sed -i 's|connection = sqlite:////var/lib/keystone/keystone.db|connection = mysql://keystonedbadmin:${mysql_user_pw}@${ansible_eth0.ipv4.address}/keystone|g' /etc/keystone/keystone.conf
+  tags:
+    - database
 
 - name: configure keystone's admin token
   action: command sed -i 's|admin_token = ADMIN|admin_token = ${keystone_admin_token}|g' /etc/keystone/keystone.conf
+  tags:
+    - configuration
 
 - name: restart keystone
   action: shell service keystone stop; service keystone start
+  tags:
+    - service
 
 #***********************************#
 # ENDPOINTS.SH and KEYSTONE_DATA.SH #
@@ -30,20 +42,37 @@
 # XXX NOT IDEMPOTENT XXX
 - name: init keystone db
   action: command /usr/bin/keystone-manage db_sync
+  tags:
+    - database
 
 - name: copy over keystone_data.sh script from template
   action: template src=templates/keystone_data.j2 dest=/usr/local/bin/keystone_data.sh mode=0755
+  tags:
+    - database
+    - configuration
 
 # XXX NOT IDEMPOTENT XXX
 - name: run keystone_data.sh
   action: command /usr/local/bin/keystone_data.sh
+  tags:
+    - database
+    - configuration
 
 - name: copy endpoints.sh file
   action: copy src=files/endpoints.sh dest=/usr/local/bin/endpoints.sh mode=0755
+  tags:
+    - database
+    - configuration
+
 
 # XXX Should remove swift stuff XXX
 - name: setup endpoints via endpoints.sh
-  action: shell /usr/local/bin/endpoints.sh -m ${ansible_eth1.ipv4.address} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${ansible_eth1.ipv4.address} -S 10.0.2.50 -R RegionOne -E "http://127.0.0.1:35357/v2.0" -T ${keystone_admin_token}
+  #action: shell /usr/local/bin/endpoints.sh -m ${ansible_eth1.ipv4.address} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${ansible_eth1.ipv4.address} -S 10.0.2.50 -R RegionOne -E "http://127.0.0.1:35357/v2.0" -T ${keystone_admin_token}
+  # Remove swift
+  action: shell /usr/local/bin/endpoints.sh -m ${ansible_eth1.ipv4.address} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${ansible_eth1.ipv4.address} -R RegionOne -E "http://127.0.0.1:35357/v2.0" -T ${keystone_admin_token}
+  tags:
+    - database
+    - configuration
 
 #************************************#
 # /ENDPOINTS.SH and KEYSTONE_DATA.SH #
@@ -69,20 +98,21 @@
 
 - name: restart keystone (again)
   action: shell service keystone stop; service keystone start
+  tags:
+    - service
 
 - name: install curl to be able to test keystone 
   action: apt pkg=curl state=installed
-
-# http://docs.openstack.org/trunk/openstack-compute/install/content/verifying-identity-install.html
-# XXX FIXME need to change glance admin name XXX
-# XXX FIXME can't seem to get this to work anyways... XXX
-#- name: test keystone 
-#  action: shell curl -s -d '{"auth": {"tenantName": "adminTenant", "passwordCredentials": {"username": "glance", "password": "${admin_password}"}}}' -H "Content-type: application/json" "http://127.0.0.1:35357/v2.0/tokens" | python -mjson.tool
-#  action: shell echo "hello"
+  tags:
+    - packages
 
 - name: copy over openstackrc.sh to vagrant's home dir
   action: template src=templates/openstackrc.j2 dest=/home/vagrant/openstackrc.sh mode=0640 owner=vagrant group=vagrant
+  tags:
+    - configuration
 
 # use bash -c because source is a builtin...might be a better way...
 - name: test keystone
   action: shell /bin/bash -c 'source /home/vagrant/openstackrc.sh; keystone user-list'
+  tags:
+    - test

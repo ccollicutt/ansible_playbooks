@@ -62,14 +62,12 @@
     - nova-scheduler
     - nova-consoleauth
 
+# XXX NOT IDEMPOTENT? XXX
 # Sync db
 - name: sync nova-manage's db
   action: command nova-manage db sync
 
-# Note brige_interfaces is backwards from instructions
 - name: create nova networks
-  #action: command nova-manage network create private --fixed_range_v4=192.168.100.32/27 --num_networks=1 --bridge=br100 --bridge_interface=eth2 --network_size=32
-  #action: shell /usr/bin/nova-manage network create private --fixed_range_v4=192.168.100.0/24 --bridge_interface=br100 --num_networks=1 --network_size=256 || true
   action: shell /usr/bin/nova-manage network create private --fixed_range_v4=10.0.0.0/24 --bridge_interface=br100 --num_networks=1 --network_size=256 || true
 
 
@@ -100,4 +98,5 @@
     - nova-consoleauth
 
 - name: add root's keypair to nova
-  action: shell source /home/vagrant/openstackrc.sh; nova keypair-add --pub_key /home/vagrant/.ssh/id_dsa.pub root
+  action: shell /bin/bash -c 'source /home/vagrant/openstackrc.sh; nova keypair-add --pub_key /home/vagrant/.ssh/id_dsa.pub vcl'
+

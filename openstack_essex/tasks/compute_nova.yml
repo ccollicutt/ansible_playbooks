@@ -1,3 +1,7 @@
+#
+# Install a nova compute node
+# 
+
 - name: apt-get update
   action: command /usr/bin/apt-get update
 
@@ -8,12 +12,17 @@
   with_items:
     - nova-common
     - nova-compute
-#    - nova-compute-kvm
-    - nova-compute-qemu
     - bridge-utils
     - guestmount
     - nova-volume
 
+- name: if qemu install nova-compute-qemu
+  action: apt pkg=nova-compute-qemu state=installed
+  only_if: '$is_hypervisor_qemu'
+
+- name: if kvm install nova-compute-kvm
+  action: apt pkg=nova-compute-kvm state=installed
+  only_if: '$is_hypervisor_kvm'
 
 #
 # Network
