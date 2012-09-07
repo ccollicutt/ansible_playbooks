@@ -7,4 +7,4 @@
     - include: tasks/mysql.yml
     - include: tasks/keystone.yml
     - include: tasks/glance.yml
-    - include: tasks/cc_nova.yml
+    - include: tasks/controller_nova.yml
