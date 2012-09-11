@@ -36,14 +36,14 @@ function get_id () {
 # Tenants
 ADMIN_TENANT=$(get_id keystone tenant-create --name=admin)
 SERVICE_TENANT=$(get_id keystone tenant-create --name=$SERVICE_TENANT_NAME)
-DEMO_TENANT=$(get_id keystone tenant-create --name=vcl)
+DEMO_TENANT=$(get_id keystone tenant-create --name={{ default_tenant }})
 #INVIS_TENANT=$(get_id keystone tenant-create --name=invisible_to_admin)
 
 
 # Users
 ADMIN_USER=$(get_id keystone user-create --name=admin \
                                          --pass="$ADMIN_PASSWORD")
-DEMO_USER=$(get_id keystone user-create --name=vcl \
+DEMO_USER=$(get_id keystone user-create --name={{ default_tenant }} \
                                         --pass="$ADMIN_PASSWORD")
 
 

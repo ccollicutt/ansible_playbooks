@@ -68,7 +68,8 @@
   action: command nova-manage db sync
 
 - name: create nova networks
-  action: shell /usr/bin/nova-manage network create private --fixed_range_v4=10.0.0.0/24 --bridge_interface=br100 --num_networks=1 --network_size=256 || true
+#  action: shell /usr/bin/nova-manage network create private --fixed_range_v4=10.0.0.0/24 --bridge_interface=br100 --num_networks=1 --network_size=256 || true
+  action: shell /usr/bin/nova-manage network create --num_networks=100 --label=private --fixed_range_v4=10.0.100.0/8 || true
 
 
 - name: set permissions on /etc/nova

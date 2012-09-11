@@ -1,5 +1,5 @@
 ---
-- hosts: openstack
+- hosts: 127.0.0.1
   user: root
   vars_files:
     - vars/main.yml

@@ -11,6 +11,7 @@ if ! which ansible > /dev/null ; then
 		pushd /usr/local/src
 			git clone git://github.com/ansible/ansible.git || exit 1
 			pushd ansible
+				# Only use release 7 for now...
 				git checkout release-0.7
 			popd
 		popd
@@ -20,6 +21,10 @@ if ! which ansible > /dev/null ; then
 		make install
 	popd
 fi
+
+#
+# This vagrant part could all be removed given the playbooks running at the end now...
+# 
 
 if [ ! -e /home/vagrant/ansible_hosts ]; then
 
@@ -46,11 +51,19 @@ if [ ! -e /root/.ssh/authorized_keys ]; then
 	chmod 600 /root/.ssh/authorized_keys
 fi
 
-#HOSTNAME=`hostname`
-#export ANSIBLE_HOSTS=/home/vagrant/ansible_hosts
+HOSTNAME=`hostname`
+export ANSIBLE_HOSTS=/home/vagrant/ansible_hosts
 
-#if [ "$HOSTNAME" == "cc01" ]; then
-#	su vagrant /usr/local/bin/ansible-playbook /vagrant/ansible_playbooks/openstack_essex/controller.yml
-#elif [ "$HOSTNAME" == "node01" ]; then
-#	su vagrant /usr/local/bin/ansible-playbook /vagrant/ansible_playbooks/openstack_essex/compute.yml
-#fi
+#
+# End vagrant
+#
+
+#
+# Depending on hostname make a controller or a compute node.
+# 
+
+if [ "$HOSTNAME" == "cc01" ]; then
+	/usr/local/bin/ansible-playbook /vagrant/ansible_playbooks/openstack_essex/controller.yml --connection=local
+elif [ "$HOSTNAME" == "node01" -o "$HOSTNAME" == "node02" ]; then
+	/usr/local/bin/ansible-playbook /vagrant/ansible_playbooks/openstack_essex/compute.yml --connection=local
+fi

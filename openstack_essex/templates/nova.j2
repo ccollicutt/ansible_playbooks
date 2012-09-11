@@ -33,7 +33,8 @@ api_paste_config=/etc/nova/api-paste.ini
 allow_resize_to_same_host=True
 # Try guestfs first because nbd has trouble with cirros image
 # See http://www.gossamer-threads.com/lists/openstack/dev/13734
-img_handlers=loop,guestfs,nbd
+# Commenting out -- curtis
+#img_handlers=loop,guestfs,nbd
 
 # APIS
 osapi_compute_extension=nova.api.openstack.compute.contrib.standard_extensions
@@ -47,19 +48,35 @@ rabbit_host={{ controller_ip }}
 image_service=nova.image.glance.GlanceImageService
 glance_api_servers={{ controller_ip }}:9292
 
-# NETWORK
-network_manager=nova.network.manager.FlatDHCPManager
+#***** NETWORK - VLANMANGER ******#
 force_dhcp_release=True
 dhcpbridge=/usr/bin/nova-dhcpbridge
 dhcpbridge_flagfile=/etc/nova/nova.conf
-firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
-my_ip={{ my_ip }}
 public_interface=eth1
 vlan_interface=eth2
-flat_network_bridge=br100
-flat_interface=eth2
-fixed_range=10.0.0.0/24
-libvirt_use_virtio_for_bridges=True
+network_manager=nova.network.manager.VlanManager
+vlan_start=100
+fixed_range=10.0.0.0/8
+#floating_range=199.116.232.40/29
+# END NETWORK - VLANMANGER
+
+#***** NETWORK - FLATDHCP *****#
+#network_manager=nova.network.manager.FlatDHCPManager
+#force_dhcp_release=True
+#dhcpbridge=/usr/bin/nova-dhcpbridge
+#dhcpbridge_flagfile=/etc/nova/nova.conf
+#firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
+#my_ip={{ my_ip }}
+#public_interface=eth1
+#vlan_interface=eth2
+#flat_network_bridge=br100
+#flat_interface=eth2
+#fixed_range=10.0.0.0/24
+#libvirt_use_virtio_for_bridges=True
+# END NETWORK - FLATDHCP
+
+# metadata
+metadata_host={{ controller_ip }}
 
 # NOVNC CONSOLE
 novncproxy_base_url=http://{{ controller_ip }}:6080/vnc_auto.html
