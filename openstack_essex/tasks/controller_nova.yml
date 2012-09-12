@@ -99,5 +99,5 @@
     - nova-consoleauth
 
 - name: add root's keypair to nova
-  action: shell /bin/bash -c 'source /home/vagrant/openstackrc.sh; nova keypair-add --pub_key /home/vagrant/.ssh/id_dsa.pub vcl'
+  action: shell /bin/bash -c 'source /home/vagrant/defaulttenantrc; nova keypair-add --pub_key /home/vagrant/.ssh/id_dsa.pub ${default_tenant}'
 

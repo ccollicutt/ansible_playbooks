@@ -50,8 +50,8 @@
 
 # use bash -c because source is a builtin...might be a better way...
 - name: try running glance index
-  action: shell /bin/bash -c 'source /home/vagrant/openstackrc.sh; glance index'
+  action: shell /bin/bash -c 'source /home/vagrant/openstackrc; glance index'
 
 - name: try to import img
   ignore_errors: true
-  action: shell /bin/bash -c 'source /home/vagrant/openstackrc.sh; glance add name="Ubuntu 12.04 cloudimg amd64" is_public=true container_format=ovf disk_format=qcow2 < /vagrant/ansible_playbooks/openstack_essex/files/ubuntu-12.04-server-cloudimg-amd64-disk1.img'
+  action: shell /bin/bash -c 'source /home/vagrant/openstackrc; glance add name="Ubuntu 12.04 cloudimg amd64" is_public=true container_format=ovf disk_format=qcow2 < /vagrant/ansible_playbooks/openstack_essex/files/ubuntu-12.04-server-cloudimg-amd64-disk1.img'

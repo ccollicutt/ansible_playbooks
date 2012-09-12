@@ -107,12 +107,17 @@
     - packages
 
 - name: copy over openstackrc.sh to vagrant's home dir
-  action: template src=templates/openstackrc.j2 dest=/home/vagrant/openstackrc.sh mode=0640 owner=vagrant group=vagrant
+  action: template src=templates/openstackrc.j2 dest=/home/vagrant/openstackrc mode=0640 owner=vagrant group=vagrant
+  tags:
+    - configuration
+
+- name: copy over defaulttenantrc to vagrant's home dir
+  action: template src=templates/defaulttenantrc.j2 dest=/home/vagrant/defaulttenantrc mode=0640 owner=vagrant group=vagrant
   tags:
     - configuration
 
 # use bash -c because source is a builtin...might be a better way...
 - name: test keystone
-  action: shell /bin/bash -c 'source /home/vagrant/openstackrc.sh; keystone user-list'
+  action: shell /bin/bash -c 'source /home/vagrant/openstackrc; keystone user-list'
   tags:
     - test
