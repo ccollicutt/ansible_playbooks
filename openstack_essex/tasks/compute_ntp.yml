@@ -1,0 +1,12 @@
+---
+- name: copy over ntp.conf for compute nodes (ie. use controller_ip as ntp server)
+  action: template src=templates/compute_ntp.j2 dest=/etc/ntp.conf 
+
+- name: stop ntp to run ntpdate
+  action: service name=ntp state=stopped
+
+- name: run ntpdate against ${controller_ip}
+  action: command /usr/bin/ntpdate ${controller_ip}
+
+- name: restart ntp after running ntpdate
+  action: service name=ntp state=started

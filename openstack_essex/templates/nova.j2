@@ -1,6 +1,6 @@
 [DEFAULT]
 {# IP address is the one associated with eth1 #}
-{% set my_ip = ansible_eth1["ipv4"]["address"]  %}
+{% set my_ip = ansible_vlan423.ipv4.address  %}
 
 # LOGS/STATE
 verbose=True
@@ -26,15 +26,11 @@ iscsi_helper=tgtadm
 sql_connection=mysql://novadbadmin:{{ mysql_user_pw }}@{{ controller_ip }}/nova
 
 # COMPUTE
-libvirt_type=qemu
+libvirt_type=kvm
 connection_type=libvirt
 instance_name_template=instance-%08x
 api_paste_config=/etc/nova/api-paste.ini
 allow_resize_to_same_host=True
-# Try guestfs first because nbd has trouble with cirros image
-# See http://www.gossamer-threads.com/lists/openstack/dev/13734
-# Commenting out -- curtis
-#img_handlers=loop,guestfs,nbd
 
 # APIS
 osapi_compute_extension=nova.api.openstack.compute.contrib.standard_extensions
@@ -52,28 +48,12 @@ glance_api_servers={{ controller_ip }}:9292
 force_dhcp_release=True
 dhcpbridge=/usr/bin/nova-dhcpbridge
 dhcpbridge_flagfile=/etc/nova/nova.conf
-public_interface=eth1
-vlan_interface=eth2
+public_interface={{ os_public_interface }}
+vlan_interface={{ os_vlan_interface }}
 network_manager=nova.network.manager.VlanManager
 vlan_start=100
 fixed_range=10.0.0.0/8
-#floating_range=199.116.232.40/29
 # END NETWORK - VLANMANGER
-
-#***** NETWORK - FLATDHCP *****#
-#network_manager=nova.network.manager.FlatDHCPManager
-#force_dhcp_release=True
-#dhcpbridge=/usr/bin/nova-dhcpbridge
-#dhcpbridge_flagfile=/etc/nova/nova.conf
-#firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver
-#my_ip={{ my_ip }}
-#public_interface=eth1
-#vlan_interface=eth2
-#flat_network_bridge=br100
-#flat_interface=eth2
-#fixed_range=10.0.0.0/24
-#libvirt_use_virtio_for_bridges=True
-# END NETWORK - FLATDHCP
 
 # metadata
 metadata_host={{ controller_ip }}

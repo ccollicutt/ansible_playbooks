@@ -25,29 +25,6 @@
   only_if: '$is_hypervisor_kvm'
 
 #
-# Network
-# 
-
-# http://www.mirantis.com/blog/openstack-networking-single-host-flatdhcpmanager/
-- name: ensure eth2 is in promiscuous mode
-  action: command /sbin/ip link set eth2 promisc on
-
-#
-# Create nova-volumes based on a backing file instead of an actual device
-# 
-- name: Create openstack directory
-  action: file dest=${openstack_directory} state=directory
-
-- name: create a backing file for nova-volumes
-  action: shell touch ${openstack_directory}/backing-file; truncate -s 5G ${openstack_directory}/backing-file
-
-- name: mount the backing file as a loopback
-  action: command /sbin/losetup --show -f ${openstack_directory}/backing-file
-
-- name: create a volume group on top of that backing file
-  action: shell /sbin/vgcreate nova-volumes $(/sbin/losetup --show -f ${openstack_directory}/backing-file)
-
-#
 # Nova config
 #
 - name: copy nova.conf template over
@@ -85,6 +62,12 @@
 
 - name: start all nova services again
   action: command service $item start
+  with_items:
+    - nova-compute
+    - nova-volume
+
+- name: make sure nova-compute and volume will start on reboot
+  action: service name=$item state=started enabled=yes
   with_items:
     - nova-compute
     - nova-volume

@@ -1,0 +1,15 @@
+---
+- name: install ntp package
+  action: apt pkg=ntp state=installed
+
+- name: ensure ntp service is running and enabled
+  action: service name=ntp state=started enabled=yes
+
+# make a backup just in case
+- name: backup original hosts file
+  action: shell if [ ! -e /etc/hosts.orig ]; then cp /etc/hosts /etc/hosts.orig; fi
+
+# If files/hosts doesn't exist, that's ok
+- name: copy hosts file over
+  action: copy src=files/hosts dest=/etc/hosts
+  ignore_errors: True

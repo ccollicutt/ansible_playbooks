@@ -1,8 +1,10 @@
 ---
-- hosts: 127.0.0.1
-  user: root
+- hosts: compute
+  user: curtis
   vars_files:
     - vars/main.yml
   tasks:
+    - include: tasks/ntp.yml
+    - include: tasks/compute_ntp.yml
     - include: tasks/compute_nova.yml
 

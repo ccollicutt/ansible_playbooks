@@ -21,7 +21,7 @@
 
 # Might need to set dbadmin name in vars/main.yml
 - name: configure keystone's db connection
-  action: command sed -i 's|connection = sqlite:////var/lib/keystone/keystone.db|connection = mysql://keystonedbadmin:${mysql_user_pw}@${ansible_eth0.ipv4.address}/keystone|g' /etc/keystone/keystone.conf
+  action: command sed -i 's|connection = sqlite:////var/lib/keystone/keystone.db|connection = mysql://keystonedbadmin:${mysql_user_pw}@${controller_ip}/keystone|g' /etc/keystone/keystone.conf
   tags:
     - database
 
@@ -67,9 +67,7 @@
 
 # XXX Should remove swift stuff XXX
 - name: setup endpoints via endpoints.sh
-  #action: shell /usr/local/bin/endpoints.sh -m ${ansible_eth1.ipv4.address} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${ansible_eth1.ipv4.address} -S 10.0.2.50 -R RegionOne -E "http://127.0.0.1:35357/v2.0" -T ${keystone_admin_token}
-  # Remove swift
-  action: shell /usr/local/bin/endpoints.sh -m ${ansible_eth1.ipv4.address} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${ansible_eth1.ipv4.address} -R RegionOne -E "http://127.0.0.1:35357/v2.0" -T ${keystone_admin_token}
+  action: shell /usr/local/bin/endpoints.sh -m ${controller_ip} -u keystonedbadmin -D keystone -p ${mysql_user_pw} -K ${controller_ip} -R RegionOne -E "http://127.0.0.1:35357/v2.0" -T ${keystone_admin_token}
   tags:
     - database
     - configuration
@@ -78,46 +76,23 @@
 # /ENDPOINTS.SH and KEYSTONE_DATA.SH #
 #************************************#
 
-#************************************#
-# KEYSTONE_INIT                      #
-#************************************#
-
-# http://docs.openstack.org/essex/openstack-compute/install/apt/content/setting-up-tenants-users-and-roles.html
-#- name: ensure keystone-init.py is present
-#  action: copy src=files/keystone-init.py dest=/usr/local/bin//keystone-init.py owner=root group=root mode=0755
-
-#- name: ensure kestyone-config.yaml is present
-#  action: template src=templates/keystone-config.yaml dest=/usr/local/bin/keystone-config.yaml owner=root group=root mode=0600
-
-#- name: populate keystone database
-#  action: command /usr/local/bin/keystone-init.py /usr/local/bin/keystone-config.yaml
-
-#************************************#
-# /KEYSTONE_INIT                     #
-#************************************#
-
 - name: restart keystone (again)
   action: shell service keystone stop; service keystone start
   tags:
     - service
 
-- name: install curl to be able to test keystone 
-  action: apt pkg=curl state=installed
-  tags:
-    - packages
-
-- name: copy over openstackrc.sh to vagrant's home dir
-  action: template src=templates/openstackrc.j2 dest=/home/vagrant/openstackrc mode=0640 owner=vagrant group=vagrant
+- name: copy over openstackrc.sh to ${ubuntu_os_admin_user}'s home dir
+  action: template src=templates/openstackrc.j2 dest=/home/${ubuntu_os_admin_user}/openstackrc mode=0640 owner=${ubuntu_os_admin_user} group=${ubuntu_os_admin_user}
   tags:
     - configuration
 
-- name: copy over defaulttenantrc to vagrant's home dir
-  action: template src=templates/defaulttenantrc.j2 dest=/home/vagrant/defaulttenantrc mode=0640 owner=vagrant group=vagrant
+- name: copy over defaulttenantrc to ${ubuntu_os_admin_user}'s home dir
+  action: template src=templates/defaulttenantrc.j2 dest=/home/${ubuntu_os_admin_user}/defaulttenantrc mode=0640 owner=${ubuntu_os_admin_user} group=${ubuntu_os_admin_user}
   tags:
     - configuration
 
 # use bash -c because source is a builtin...might be a better way...
 - name: test keystone
-  action: shell /bin/bash -c 'source /home/vagrant/openstackrc; keystone user-list'
+  action: shell /bin/bash -c 'source /home/${ubuntu_os_admin_user}/openstackrc; keystone user-list'
   tags:
     - test

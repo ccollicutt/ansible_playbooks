@@ -1,8 +1,7 @@
 - name: apt-get update
   action: command /usr/bin/apt-get update
 
-# XXX This page http://docs.openstack.org/trunk/openstack-compute/install/content/installing-the-cloud-controller.html
-# shows a couple more pacakges, such as nova-vncproxy?? XXX
+# http://docs.openstack.org/trunk/openstack-compute/install/content/installing-the-cloud-controller.html
 # - novnc won't install with nova-vncproxy
 - name: install various nova cloud controller packages
   action: apt pkg=$item state=installed
@@ -20,12 +19,6 @@
     - python-nova
     - python-novaclient
     - bridge-utils
-
-#
-# Network
-#
-- name: ensure eth2 is in promiscuous mode
-  action: command /sbin/ifconfig eth2 promisc
 
 #
 # Nova config
@@ -62,15 +55,12 @@
     - nova-scheduler
     - nova-consoleauth
 
-# XXX NOT IDEMPOTENT? XXX
-# Sync db
+# XXX NOT IDEMPOTENT XXX
 - name: sync nova-manage's db
   action: command nova-manage db sync
 
 - name: create nova networks
-#  action: shell /usr/bin/nova-manage network create private --fixed_range_v4=10.0.0.0/24 --bridge_interface=br100 --num_networks=1 --network_size=256 || true
   action: shell /usr/bin/nova-manage network create --num_networks=100 --label=private --fixed_range_v4=10.0.100.0/8 || true
-
 
 - name: set permissions on /etc/nova
   action: command chown -R nova:nova /etc/nova
@@ -99,5 +89,5 @@
     - nova-consoleauth
 
 - name: add root's keypair to nova
-  action: shell /bin/bash -c 'source /home/vagrant/defaulttenantrc; nova keypair-add --pub_key /home/vagrant/.ssh/id_dsa.pub ${default_tenant}'
+  action: shell /bin/bash -c 'source /home/${ubuntu_os_admin_user}/defaulttenantrc; nova keypair-add --pub_key /home/${ubuntu_os_admin_user}/.ssh/id_dsa.pub ${default_tenant}'
 
