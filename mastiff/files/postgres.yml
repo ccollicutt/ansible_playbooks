@@ -1,0 +1,10 @@
+---
+
+- name: added the postgres 9.2 apt repository
+  action: command add-apt-repository -y ppa:pitti/postgresql
+
+- name: update apt
+  action: command apt-get update
+
+- name: install postgres 9.2
+  action: apt pkg=postgres-9.2 status=installed

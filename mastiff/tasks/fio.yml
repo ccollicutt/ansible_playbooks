@@ -1,0 +1,27 @@
+---
+- name: mount /dev/vdb
+  action: mount name=/mnt src=/dev/vdb fstype=ext3 state=mounted
+
+- name: install epel repo
+  action: shell if ! rpm -qa epel-release; then rpm -ivh http://packages.serverascode.com/mrepo/custom-centos6-noarch/RPMS.all/epel-release-6-7.noarch.rpm; fi
+
+- name: install fio
+  action: yum pkg=fio state=installed
+
+#- name: mount /dev/vdb on /mnt
+#  action: command mount /dev/vdb /mnt
+
+- name: copy randwrite.fio to server
+  action: copy src=files/randwrite.fio dest=/var/tmp/randwrite.fio
+
+- name: run fio on randwrite.fio
+  action: shell fio /var/tmp/randwrite.fio > /var/tmp/randwrite.out
+
+- name: fetch the randwrite.out files
+  action: fetch src=/var/tmp/randwrite.out dest=/var/tmp/
+
+- name: umount /mnt and reformat
+  action: mount name=/mnt src=/dev/vdb fstype=ext3 state=unmounted
+
+- name: format /dev/vdb
+  action: command mkfs.ext3 /dev/vdb

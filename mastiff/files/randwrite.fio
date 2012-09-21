@@ -1,0 +1,10 @@
+[randwrite]
+
+direct=1
+rw=randwrite 
+bs=1m 
+size=4G 
+numjobs=4 
+runtime=10 
+group_reporting 
+directory=/mnt

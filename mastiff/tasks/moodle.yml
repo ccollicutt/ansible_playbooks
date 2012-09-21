@@ -1,0 +1,7 @@
+---
+# moodle doesn't seem to be in that repo though
+- name: install precise-proposed repository
+  action: command add-apt-repository "deb http://archive.ubuntu.com/ubuntu precise-proposed main restricted universe multiverse"
+
+- name: install moodle
+  action: apt pkg=moodle state=installed
