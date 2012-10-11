@@ -1,0 +1,21 @@
+#
+# Nova config
+#
+- name: copy nova.conf template over
+  action: template src=templates/nova.j2 dest=/etc/nova/nova.conf
+
+- name: copy over nova's api-paste.ini template
+  action: template src=templates/api-paste.j2 dest=/etc/nova/api-paste.ini
+
+- name: stop all nova services
+  action: command service $item stop
+  ignore_errors: True
+  with_items:
+    - nova-compute
+    - nova-volume
+
+- name: start all nova services
+  action: command service $item start
+  with_items:
+    - nova-compute
+    - nova-volume

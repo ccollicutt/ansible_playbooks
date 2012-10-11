@@ -6,7 +6,7 @@
   action: service name=ntp state=stopped
 
 - name: run ntpdate against ${controller_ip}
-  action: command /usr/bin/ntpdate ${controller_ip}
+  action: command /usr/sbin/ntpdate ${controller_ip}
 
 - name: restart ntp after running ntpdate
   action: service name=ntp state=started

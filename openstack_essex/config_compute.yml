@@ -1,0 +1,8 @@
+---
+- hosts: compute
+  user: curtis
+  sudo: True
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - include: tasks/config_compute.yml

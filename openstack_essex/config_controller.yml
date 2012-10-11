@@ -1,0 +1,7 @@
+---
+- hosts: controller
+  user: root
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - include: tasks/config_controller.yml

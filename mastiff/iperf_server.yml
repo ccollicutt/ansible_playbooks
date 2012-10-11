@@ -1,7 +1,7 @@
 ---
-- hosts: fio
+- hosts: iperf_server
   user: root
   vars_files:
     - vars/main.yml
   tasks:
-    - include: tasks/fio.yml
+    - include: tasks/iperf_server.yml

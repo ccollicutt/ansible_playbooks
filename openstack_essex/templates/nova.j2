@@ -44,6 +44,9 @@ rabbit_host={{ controller_ip }}
 image_service=nova.image.glance.GlanceImageService
 glance_api_servers={{ controller_ip }}:9292
 
+# Network Driver
+libvirt_use_virtio_for_bridges=True
+
 #***** NETWORK - VLANMANGER ******#
 force_dhcp_release=True
 dhcpbridge=/usr/bin/nova-dhcpbridge

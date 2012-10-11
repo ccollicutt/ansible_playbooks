@@ -1,0 +1,47 @@
+#
+# Push a nova config out
+#
+
+#
+# XXX Backup db
+# 
+
+
+#
+# Nova config
+# 
+- name: copy nova.conf template over
+  action: template src=templates/nova.j2 dest=/etc/nova/nova.conf
+
+- name: copy over nova's api-paste.ini template
+  action: template src=templates/api-paste.j2 dest=/etc/nova/api-paste.ini
+
+# Nova db sync?
+- name: sync nova db
+  action: command nova-manage db sync
+
+#
+# Services XXX should be a handler...???
+#
+- name: stop all nova services
+  action: command service $item stop
+  ignore_errors: True
+  with_items:
+    - libvirt-bin
+    - nova-network
+    - nova-cert
+    - nova-api
+    - nova-objectstore
+    - nova-scheduler
+    - nova-consoleauth
+
+- name: start all nova services
+  action: command service $item start
+  with_items:
+    - libvirt-bin
+    - nova-network
+    - nova-cert
+    - nova-api
+    - nova-objectstore
+    - nova-scheduler
+    - nova-consoleauth
