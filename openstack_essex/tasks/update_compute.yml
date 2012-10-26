@@ -1,0 +1,11 @@
+#
+# Nova config
+#
+- name: apt-get update
+  action: shell /usr/bin/apt-get -y update
+
+- name: Dry run apt-get upgrade
+  action: shell /usr/bin/apt-get -y -s -u upgrade
+
+- name: Actually run apt-get upgrade
+  action: shell /usr/bin/apt-get -y upgrade 
