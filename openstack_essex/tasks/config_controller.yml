@@ -3,9 +3,20 @@
 #
 
 #
-# XXX Backup db
-# 
+# Make sure backup dir exists
+#
+- name: Check if mysql backup directory exists, make it if not
+  action: file path=/var/lib/backups/mysql state=directory mode=0750 owner=root group=root
 
+#
+# Backup databases
+# 
+- name: backup nova, glance, and keystone databases
+  action: shell mysqldump $item > /var/lib/backups/mysql/$(date +"%Y-%m-%d_%H%M")_$item.sql
+  with_items:
+    - nova
+    - glance
+    - keystone
 
 #
 # Nova config
