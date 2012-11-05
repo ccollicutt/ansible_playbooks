@@ -1,4 +1,30 @@
 ---
+# ubuntu OS admin user
+# with vagrant/virtual box will be "vagrant"
+ubuntu_os_admin_user: CHANGEME
+
+# Where to put the backing file if we are using vagrant
+openstack_directory: /opt/openstack
+
+# default tenant to create in openstack
+default_tenant: CHANGME
+default_tenant_description: CHANGEME
+
+# ip of the cloud controller
+controller_ip: CHANGEME
+
+# Set the interfaces
+os_public_interface: CHANGEME
+os_vlan_interface: CHANGEME
+
+# mysql and admin token "passwords"
 mysql_user_pw: CHANGEME
-keystone_admin_token: CHANGEME 
-admin_password: CHANGEME 
+keystone_admin_token: CHANGEME
+
+# will be used for admin and default_tenant password
+admin_password: CHANGEME
+
+# which hypervisor are we using? qemu in virtual box, kvm on hw
+hypervisor: kvm
+is_hypervisor_qemu: "'$hypervisor' == 'qemu'"
+is_hypervisor_kvm: "'$hypervisor' == 'kvm'"
