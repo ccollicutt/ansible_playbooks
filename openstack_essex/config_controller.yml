@@ -1,6 +1,7 @@
 ---
 - hosts: controller
-  user: root
+  user: curtis
+  sudo: True
   vars_files:
     - vars/main.yml
   tasks:
