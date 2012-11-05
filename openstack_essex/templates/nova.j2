@@ -50,7 +50,14 @@ remove_unused_base_images=True
 libvirt_use_virtio_for_bridges=True
 
 #***** NETWORK - VLANMANGER ******#
+# release leases immediately on terminate
 force_dhcp_release=True
+# XXX VCL XXX: The lease times are for a vcl workaround and hopefully will not be needed in the future -- Curtis
+# 8 hour lease time - I think max reservation time is 7 hours or so
+dhcp_lease_time=28800
+# 16 hour disassociate timeout
+fixed_ip_disassociate_timeout=57600
+# XXX END VCL XXX
 dhcpbridge=/usr/bin/nova-dhcpbridge
 dhcpbridge_flagfile=/etc/nova/nova.conf
 public_interface={{ os_public_interface }}
