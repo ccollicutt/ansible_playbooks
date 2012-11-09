@@ -1,0 +1,12 @@
+---
+# Am only putting compute here for now by default b/c it's pretty easy to mess up all the hosts and lock
+# us out and have to drive to lethbridge.
+- hosts: rpmbuild
+#- hosts: compute:controller
+  user: root
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - include: tasks/setup.yml
+
+

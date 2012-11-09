@@ -1,0 +1,46 @@
+- name: install various required rpm packages
+  action: yum pkg=$item state=installed
+  with_items:
+    - rpm-build
+    - redhat-rpm-config
+    - make
+    - gcc
+    - openssl
+    - openssl-devel
+    - git
+
+- name: add user groups
+  action: shell groupadd $item
+  ignore_errors: True
+  with_items: $users
+
+- name: ensure admin users are present
+  action: user name=$item append=yes state=present group=$item createhome=yes shell=/bin/bash
+  with_items: $users
+
+# ssh keys in authorized keys file...
+#- name: copy over ssh key for authorized keys file
+#  action: authorized_key user=$item state=present key='$PIPE(./get_keys.sh $item)'
+#  with_items: $user
+
+- name: setup rpm directories in user home
+  action: shell mkdir -p /home/$item/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+  with_items: $users
+
+- name: ensure permissions
+  action: shell chown -R $item:$item /home/$item/rpmbuild
+  with_items: $users
+
+# XXX Maybe should just be a file to copy...
+- name: remove macros in case they are there already
+  action: file state=absent path=/home/$item/.rpmmacros
+  with_items: $users
+
+- name: setup user macros
+  action: shell echo '%_topdir /home/$item/rpmbuild' > /home/$item/.rpmmacros
+  with_items: $users
+
+# Must be a better way to do perms on this...
+- name: ensure permissions
+  action: shell chown -R $item:$item /home/$item/.rpmmacros
+  with_items: $users
