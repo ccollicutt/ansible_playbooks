@@ -2,4 +2,4 @@ dhcp-range=192.168.255.110,192.168.255.120,255.255.255.0,12h
 enable-tftp
 tftp-root=$tftp_dir
 interface=eth0
-dhcp-boot=pxelinux.0
+dhcp-boot=$tftp_installer_dir/pxelinux.0

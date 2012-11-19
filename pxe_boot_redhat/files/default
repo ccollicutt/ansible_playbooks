@@ -5,4 +5,4 @@ menu title $$$$$$Boot Menu$$$$$$
 label 1
 menu label ^ 1) RHEL6
 kernel vmlinuz
-append initrd=initrd.img
+append initrd=initrd.img console=ttyS1,115200 earlyprint=serial,ttyS1,115200 ks=http://192.168.255.102/ks.cfg ip=192.168.255.200 netmask=255.255.255.0 ksdevice=em1

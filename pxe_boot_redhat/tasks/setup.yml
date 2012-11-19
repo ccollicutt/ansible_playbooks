@@ -3,11 +3,18 @@
 - name: make sure rpm2cpio is installed 
   action: apt pkg=rpm2cpio state=installed
 
+# I suppose this is kinda dangerous...
+- name: remove $tftp_dir
+  action: shell rm -rf $tftp_dir
+
 - name: make sure $tftp_dir exists
   action: file path=$tftp_dir owner=root group=root mode=0755 state=directory
 
 - name: make sure $tftp_installer_dir exists
   action: file path=$tftp_installer_dir owner=root group=root mode=0755 state=directory
+
+- name: make sure $tftp_pxelinux_cfg_dir exists
+  action: file path=$tftp_pxelinux_cfg_dir owner=root group=root mode=0755 state=directory
 
 # Should maybe ensure there is nothing in the directory already...
 
@@ -22,8 +29,20 @@
     - vmlinuz
     - TRANS.TBL
 
+- name: copy default boot file
+  action: copy src=files/default dest=$tftp_pxelinux_cfg_dir/default
+
 - name: copy over dnsmasq template
   action: template src=templates/dnsmasq.j2 dest=/etc/dnsmasq.conf
 
-- name: ensure dnsmasq is running
-  action: service name=dnsmasq state=started
+- name: ensure dnsmasq is restarted 
+  action: service name=dnsmasq state=restarted
+
+- name: copy repos apache config template over
+  action: template src=templates/repos.j2 dest=/etc/apache2/sites-enabled/repos
+
+- name: copy kickstart to /var/www
+  action: template src=templates/ks.j2 dest=/var/www/ks.cfg
+
+- name: restart apache
+  action: service name=apache2 state=restarted

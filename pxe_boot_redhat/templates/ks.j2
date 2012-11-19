@@ -1,0 +1,39 @@
+install
+url --url http://192.168.255.102/repo
+lang en_US.UTF-8
+keyboard us
+network --bootproto=static --ip=192.168.255.200 --netmask=255.255.255.0 --device=em1
+rootpw r00ted!
+firewall --enabled --service=ssh
+services --enabled=acpid
+authconfig --enableshadow --passalgo=sha512
+selinux --disabled
+timezone UTC
+bootloader --location=mbr --append="console=ttyS1,115200"
+
+text
+skipx
+zerombr
+
+clearpart --all --initlabel
+autopart
+
+auth  --useshadow  --enablemd5
+firstboot --disabled
+reboot
+
+%packages --nobase
+@core
+@server-policy
+openssh-clients
+bzip2
+acpid
+dhclient
+-ipw2100-firmware
+-ipw2200-firmware
+-ivtv-firmware
+%end
+
+%post
+
+%end
