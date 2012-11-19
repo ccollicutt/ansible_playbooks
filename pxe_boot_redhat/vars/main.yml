@@ -1,0 +1,5 @@
+---
+rhel_iso_mount_location: /mnt/iso
+tftp_dir: /tftp
+tftp_installer_dir: $tftp_dir/linux-install
+syslinux_rpm_location: $rhel_iso_mount_location/Packages/syslinux-4.02-7.el6.x86_64.rpm

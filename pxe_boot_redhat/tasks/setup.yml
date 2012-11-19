@@ -1,0 +1,29 @@
+---
+# This is to grab files from a rpm
+- name: make sure rpm2cpio is installed 
+  action: apt pkg=rpm2cpio state=installed
+
+- name: make sure $tftp_dir exists
+  action: file path=$tftp_dir owner=root group=root mode=0755 state=directory
+
+- name: make sure $tftp_installer_dir exists
+  action: file path=$tftp_installer_dir owner=root group=root mode=0755 state=directory
+
+# Should maybe ensure there is nothing in the directory already...
+
+# ok this is prob not a good way to do this...
+- name: export files we need from the syslinux rpm
+  action: shell TEMP=`mktemp -d`; cd $TEMP; rpm2cpio $rhel_iso_mount_location/Packages/syslinux*.rpm | cpio -id; cp $TEMP/usr/share/syslinux/pxelinux.0 $tftp_installer_dir; cp $TEMP/usr/share/syslinux/menu.c32 $tftp_installer_dir; rm -rf $TEMP
+
+- name: copy pxeboot files
+  action: shell cp $rhel_iso_mount_location/images/pxeboot/$item $tftp_installer_dir
+  with_items:
+    - initrd.img
+    - vmlinuz
+    - TRANS.TBL
+
+- name: copy over dnsmasq template
+  action: template src=templates/dnsmasq.j2 dest=/etc/dnsmasq.conf
+
+- name: ensure dnsmasq is running
+  action: service name=dnsmasq state=started

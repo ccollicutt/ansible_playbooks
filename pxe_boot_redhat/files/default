@@ -1,0 +1,8 @@
+timeout 100
+default menu.c32
+
+menu title $$$$$$Boot Menu$$$$$$
+label 1
+menu label ^ 1) RHEL6
+kernel vmlinuz
+append initrd=initrd.img
