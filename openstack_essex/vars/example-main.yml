@@ -28,3 +28,7 @@ admin_password: CHANGEME
 hypervisor: kvm
 is_hypervisor_qemu: "'$hypervisor' == 'qemu'"
 is_hypervisor_kvm: "'$hypervisor' == 'kvm'"
+
+#backups
+backup_server: COMPUTE_NODE
+backup_user: SOME_USER
