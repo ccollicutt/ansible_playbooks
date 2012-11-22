@@ -1,0 +1,5 @@
+---
+
+# make sure there is a backup user
+- name: copy over backup cronjob template
+  action: template src=templates/backups.j2 dest=/etc/cron.daily/backups owner=root group=root mode=0755

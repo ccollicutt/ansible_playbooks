@@ -1,0 +1,10 @@
+---
+
+- name: ensure there is a backup user
+  action: user name=backup
+
+- name: ensure the right key is in place for the backup user
+  action: authorized_key user=backup state=present key='$PIPE(./get_keys.sh backup)'
+
+- name: ensure the backups directory is owned by backup user
+  action: file path=/var/lib/backups owner=backup group=backup mode=0700 state=directory

@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# TODO:
+# - should this be /bin/sh?
+# - should be a template not a file? Get REMOTE_USER etc from mail.yml?
+# - should get backup directories from a var...
+
+# 
+# VARS
+# 
+
+MYSQL_BACKUP_DIR="/var/lib/backups/mysql"
+MYSQL_BACKUP_FILENAME="${MYSQL_BACKUP_DIR}/mysql-`hostname`-`eval date +%Y%m%d`.sql.gz"
+GLANCE_BACKUP_DIR="/var/lib/glance/images"
+REMOTE_HOST="$backup_server"
+REMOTE_USER="$backup_user"
+REMOTE_DIR="/var/lib/backups"
+# This is an array b/c of how rsync works...
+RSYNC_OPTIONS=(-avz -e 'ssh -i /root/.ssh/backup')
+RSYNC=(rsync "${RSYNC_OPTIONS[@]}")
+RES=0
+
+#
+# MAIN
+# 
+
+##### MYSQL #####
+
+# Dump the entire MySQL database
+if ! /usr/bin/mysqldump --opt --all-databases | /bin/gzip > $MYSQL_BACKUP_FILENAME; then
+	/usr/bin/logger "$0 ERROR: mysqldump failed, exiting..."
+	exit 1
+fi
+
+# Delete backups older than 7 days
+if ! /usr/bin/find $MYSQL_BACKUP_DIR -ctime +7 -type f -delete; then
+	/usr/bin/logger "$0 ERROR: mysql backup deletion failed, exiting..."
+	exit 1
+fi
+
+#### RSYNC ####
+
+# mysql
+"${RSYNC[@]}" "$MYSQL_BACKUP_DIR" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/"
+RES=$?
+
+if [ "$RES" != 0 ]; then
+	/usr/bin/logger "$0 ERROR: rsync of $MYSQL_BACKUP_DIR failed, exiting..."
+	exit 1
+fi
+
+# glance images
+"${RSYNC[@]}" "$GLANCE_BACKUP_DIR" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/"
+RES=$?
+
+if [ "$RES" != 0 ]; then
+	/usr/bin/logger "$0 ERROR: rsync of $GLANCE_BACKUP_DIR failed, exiting..."
+	exit 1
+fi
+
+exit 0
