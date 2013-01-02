@@ -1,7 +1,6 @@
 #
 # Make sure admin users on each node exist
 #
-
 - name: ensure admin users are present
   action: user name=$item state=present password=$password group=$item groups=sudo,adm createhome=yes shell=/bin/bash
   with_items: $ubuntu_os_admin_user

@@ -1,6 +1,3 @@
-# my custom ppa - curtis
-deb http://ppa.launchpad.net/6-curtis/ppa/ubuntu precise main 
-deb-src http://ppa.launchpad.net/6-curtis/ppa/ubuntu precise main 
 ## Note, this file is written by cloud-init on first boot of an instance
 ## modifications made here will not survive a re-bundle.
 ## if you wish to make changes you can:

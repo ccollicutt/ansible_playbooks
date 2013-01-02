@@ -6,3 +6,4 @@ openstack_essex/files/ubuntu-12.04-server-cloudimg-amd64-disk1.img
 openstack_essex/files/hosts
 *ansible_hosts
 *.iso
+openstack_essex/files/*.pub
