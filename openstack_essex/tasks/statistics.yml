@@ -1,0 +1,11 @@
+#statistics
+
+# This is a custom version that can send data to graphite, 3.6.0 cannot do that
+- name: ensure collectl is installed 
+  action: apt pkg=collectl=3.6.3-1ubuntu1 state=installed update-cache=yes
+
+- name: ensure collectl.conf configuration file is present
+  action: template src=templates/collectl.j2 dest=/etc/collectl.conf
+
+- name: ensure collectl is restarted
+  action: service name=collectl state=restarted

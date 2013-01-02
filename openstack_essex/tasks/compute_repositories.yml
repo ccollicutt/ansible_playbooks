@@ -1,0 +1,18 @@
+- name: make sure the required packages for apt_repository are in place
+  action: apt pkg=python-software-properties state=installed
+
+- name: ensure correct repositories are in place
+  action: apt_repository repo=ppa:6-curtis/ppa state=present
+
+- name: ensure the sources.list file is in place
+  action: copy src=files/sources.list dest=/etc/apt/sources.list owner=root group=root mode=0644
+
+- name: ensure that there is a 01proxy file that directs the compute nodes to use the controller node as the proxy for apt
+  action: copy src=files/01proxy dest=/etc/apt/apt.conf.d/01proxy owner=root group=root mode=0644
+
+# NOTE: Because the compute nodes can't use the internet, they can't install GPG keys via add-apt-repository
+- name: add curtis' custom PPA gpg key file to the server
+  action: copy src=files/curtis_ppa_pub.gpg dest=/tmp/curtis_ppa_pub.gpg owner=root group=root mode=0644
+
+- name: use apt-key to add the custom gpg key
+  action: shell apt-key add /tmp/curtis_ppa_pub.gpg 
