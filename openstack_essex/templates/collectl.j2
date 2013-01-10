@@ -23,7 +23,7 @@
 # you include the -m switch, you can also look in the collectl log, which is 
 # stored in the logging directory.
 #DaemonCommands = -f /var/log/collectl -r00:00,7 -m -F60 -s+YZ
-DaemonCommands = --export graphite,{{ controller_ip }},d=1,s=dn --rawtoo -f /var/log/collectl
+DaemonCommands = --export graphite,{{ controller_ip }},d=1,s=cdimtn --rawtoo -f /var/log/collectl
 
 # This defines the location to look for all additional required files if formatit.ph
 # is not in the same directory as collectl itself.
