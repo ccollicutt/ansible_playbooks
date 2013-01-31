@@ -1,0 +1,4 @@
+---
+
+- name: restart ovs
+  action: service name=openvswitch-switch state=restarted

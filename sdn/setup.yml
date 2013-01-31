@@ -1,0 +1,10 @@
+---
+- hosts: sdn
+  user: vagrant
+  sudo: yes
+# vars_files:
+#   - vars/main.yml
+  tasks:
+    - include: tasks/setup.yml
+  handlers:
+     - include: handlers/setup.yml
