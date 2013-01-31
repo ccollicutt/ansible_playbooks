@@ -14,42 +14,76 @@
     - openvswitch-brcompat
     - openvswitch-common
     - openvswitch-switch
-    - linux-headers-3.2.0-23-generic
+    #- linux-headers-3.2.0-23-generic
+    #- linux-headers-generic-pae
     - git
     - python-zdaemon
+    - kvm
+    - wget
+
+- name: install linux linux-headers
+  action: shell apt-get install -y linux-headers-$(uname -r)
+  ignore_errors: True
 
 - name: check if the openvswitch-switch module is already built and installed
-  action: shell lsmod | grep openvswitch_mod
+  action: shell lsmod | grep openvswitch_mod > /dev/null; echo $?
   ignore_errors: True
   register: openvswitch_module_installed
   # openvswitch_module_installed should be empty if there is no module with that name
 
 - name: build openvswitch-switch module
-  action: shell module-assistant -q auto-install openvswitch-datapath
-  when_unset: $openvswitch_module_installed
+  action: shell module-assistant -t -q auto-install openvswitch-datapath
+  only_if: '${openvswitch_module_installed} > 0'
+
+# TODO: Should only reboot if the module build actually suceeded
+- name: reboot
+  action: command reboot
+  only_if: '${openvswitch_module_installed} > 0'
+
+- name: wait for the server to come back up after a reboot
+  action: pause seconds=30
+  only_if: '${openvswitch_module_installed} > 0'
+
+#
+# WAIT_FOR not working...???
+#
+#- name: wait for ssh to stop
+#  action: wait_for delay=5 host=192.168.33.10 port=22 state=stopped
+
+#- name: wait for server to reboot and ssh to start again
+#  action: wait_for delay=20 host=192.168.33.10 port=22 state=started
+#  delegate_to: 127.0.0.2
 
 - name: configure /etc/default/openvswitch-switch
   action: copy src=files/openvswitch-switch dest=/etc/default/openvswitch-switch
-  notify: restart ovs
+#  notify: restart ovs
+
+- name: restart openvswitch-switch
+  action: shell service openvswitch-switch restart
+
+# only try to start if we just build the module
+- name: ensure openvswitch-switch service is running
+  action: service name=openvswitch-switch state=started
+  only_if: '${openvswitch_module_installed} > 0'
 
 # TODO -- make br-int a variable
 - name: see if br-int is already running
-  action: shell brctl show | grep br-int
+  action: shell brctl show | grep br-int > /dev/null; echo $?
   register: bridge_up
   ignore_errors: True
 
 - name: add a bridge-utils
   action: shell ovs-vsctl add-br br-int
-  when_unset: $bridge_up
+  only_if: '${bridge_up} > 0'
 
 # TODO -- pull this info from ansible
 - name: add a physical interface to the virtual bridge-utils
-  action: shell ovs-vsctl add-port br-int eth1; ifconfig eth1 0; ifconfig br-int 192.168.33.10 netmask 255.255.255.0
-  when_unset: $bridge_up
+  action: shell ovs-vsctl add-port br-int eth2; ifconfig eth2 0; ifconfig br-int 192.168.100.10 netmask 255.255.255.0
+  only_if: '${bridge_up} > 0'
 
-- name: add a default route
-  action: shell route add default gw 192.168.33.1 br-int; route del default gw 10.0.2.2 eth0
-  when_unset: $bridge_up
+#- name: add a default route
+#  action: shell route del default gw 10.0.2.2 eth0; route add default gw 192.168.33.1 br-int; 
+#  when_unset: $bridge_up
 
 - name: check if we have already cloned the pox repository
   action: file path=/usr/local/src/pox state=directory
@@ -70,5 +104,17 @@
   action: shell zdaemon -p 'python /usr/local/src/pox/pox.py --no-cli forwarding.l2_learning' -d start
 #  only_if: "$pox_running > 0"
 
-#- name: attached openswtich to the controller
-#  action: shell ovs-vsctl set-controller br-int tcp:192.168.1.208:6633
+- name: attach openswitch to the controller
+  action: shell ovs-vsctl set-controller br-int tcp:192.168.33.10:6633
+
+- name: copy over ovs-ifup script
+  action: copy src=files/ovs-ifup dest=/sbin/ovs-ifup owner=root group=root mode=0755
+
+- name: copy over ovs-ipdown script
+  action: copy src=files/ovs-ifdown dest=/sbin/ovs-ifdown owner=root group=root mode=0755
+
+- name: download the linux-0.2.img.bz2 qemu testing image
+  action: get_url url=http://wiki.qemu.org/download/linux-0.2.img.bz2 dest=/root/linux-0.2.img.bz2
+
+- name: unzip linux-0.2.img.bz2 file
+  action: shell bunzip2 /root/linux-0.2.img.bz2
