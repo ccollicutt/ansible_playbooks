@@ -2,9 +2,13 @@
 
 - name: update apt
   action: shell apt-get update
+  tags:
+    - build
 
 - name: install required software defined networking packages
   action: apt pkg=$item state=installed
+  tags: 
+    - build
   with_items:
   #  - auto-install
     - openvswitch-datapath-source 
@@ -23,25 +27,36 @@
 
 - name: install linux linux-headers
   action: shell apt-get install -y linux-headers-$(uname -r)
+  tags:
+    - build
   ignore_errors: True
 
 - name: check if the openvswitch-switch module is already built and installed
   action: shell lsmod | grep openvswitch_mod > /dev/null; echo $?
+  tags:
+    - build
   ignore_errors: True
   register: openvswitch_module_installed
   # openvswitch_module_installed should be empty if there is no module with that name
 
 - name: build openvswitch-switch module
   action: shell module-assistant -t -q auto-install openvswitch-datapath
+  tags:
+    - build
   only_if: '${openvswitch_module_installed} > 0'
 
 # TODO: Should only reboot if the module build actually suceeded
 - name: reboot
   action: command reboot
+  tags:
+    - install
+    - reboot
   only_if: '${openvswitch_module_installed} > 0'
 
 - name: wait for the server to come back up after a reboot
   action: pause seconds=30
+  tags:
+    - reboot
   only_if: '${openvswitch_module_installed} > 0'
 
 #
@@ -56,29 +71,41 @@
 
 - name: configure /etc/default/openvswitch-switch
   action: copy src=files/openvswitch-switch dest=/etc/default/openvswitch-switch
+  tags:
+    - configure
 #  notify: restart ovs
 
 - name: restart openvswitch-switch
   action: shell service openvswitch-switch restart
+  tags:
+    - configure
 
 # only try to start if we just build the module
 - name: ensure openvswitch-switch service is running
   action: service name=openvswitch-switch state=started
+  tags:
+    - configure
   only_if: '${openvswitch_module_installed} > 0'
 
 # TODO -- make br-int a variable
 - name: see if br-int is already running
   action: shell brctl show | grep br-int > /dev/null; echo $?
   register: bridge_up
+  tags:
+    - configure
   ignore_errors: True
 
 - name: add a bridge-utils
   action: shell ovs-vsctl add-br br-int
+  tags:
+    - configure
   only_if: '${bridge_up} > 0'
 
 # TODO -- pull this info from ansible
 - name: add a physical interface to the virtual bridge-utils
   action: shell ovs-vsctl add-port br-int eth2; ifconfig eth2 0; ifconfig br-int 192.168.100.10 netmask 255.255.255.0
+  tags:
+    - configure
   only_if: '${bridge_up} > 0'
 
 #- name: add a default route
@@ -87,11 +114,15 @@
 
 - name: check if we have already cloned the pox repository
   action: file path=/usr/local/src/pox state=directory
+  tags:
+    - configure
   register: pox_installed
 
 # Only bring in pox if it's not already there
 - name: clone pox repository
   action: shell cd /usr/local/src; git clone http://github.com/noxrepo/pox
+  tags:
+    - install
   only_if: '${pox_installed.changed}'
 
 # maybe don't need to do this with zdaemon, it'll say it's already running..
@@ -102,19 +133,31 @@
 
 - name: start pox if it isn't running already
   action: shell zdaemon -p 'python /usr/local/src/pox/pox.py --no-cli forwarding.l2_learning' -d start
+  tags:
+    - configure
 #  only_if: "$pox_running > 0"
 
 - name: attach openswitch to the controller
   action: shell ovs-vsctl set-controller br-int tcp:192.168.33.10:6633
+  tags:
+    - configure
 
 - name: copy over ovs-ifup script
   action: copy src=files/ovs-ifup dest=/sbin/ovs-ifup owner=root group=root mode=0755
+  tags:
+    - configure
 
 - name: copy over ovs-ipdown script
   action: copy src=files/ovs-ifdown dest=/sbin/ovs-ifdown owner=root group=root mode=0755
+  tags:
+    - configure
 
 - name: download the linux-0.2.img.bz2 qemu testing image
   action: get_url url=http://wiki.qemu.org/download/linux-0.2.img.bz2 dest=/root/linux-0.2.img.bz2
+  tags:
+    - configure
 
 - name: unzip linux-0.2.img.bz2 file
   action: shell bunzip2 /root/linux-0.2.img.bz2
+  tags:
+    - configure

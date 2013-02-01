@@ -1,3 +1,4 @@
-#!/bin/sh switch='br-int' 
+#!/bin/sh 
+switch='br-int' 
 /sbin/ifconfig $1 0.0.0.0 down 
 ovs-vsctl del-port ${switch} $1
