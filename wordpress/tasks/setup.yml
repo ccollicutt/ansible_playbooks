@@ -40,6 +40,7 @@
     - wordpress
     - mysql-server
     - MySQL-python
+    - mod_ssl
   tags:
     - packages
 
@@ -61,3 +62,20 @@
   action: mysql_user name=wordpress password=$mysql_user_password priv=wordpress.*:ALL state=present
   tags:
     - database
+
+- name: copy over wp-config.php from template
+  action: template src=templates/wp-config.j2 dest=/etc/wordpress/wp-config.php
+  tags:
+    - configuration
+
+#
+# As will probably use a custom domain, have to think about how to do this in ansible.
+# 
+#- name: copy over wordpress httpd configuration file
+#  action: copy src=files/wordpress.conf dest=/etc/httpd/conf.d/wordpress.conf
+#  notify:
+#    - reload apache
+#  tags:
+#    - configuration
+
+

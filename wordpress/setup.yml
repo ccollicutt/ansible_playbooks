@@ -1,11 +1,10 @@
 ---
-- hosts: wordpress 
-  user: vagrant
-  sudo: yes
+- hosts: wordpress-prod
+  user: root
+  sudo: no 
   vars_files:
     - vars/main.yml
   tasks:
     - include: tasks/setup.yml
-  
-#  handlers:
-#     - include: handlers/setup.yml
+  handlers:
+     - include: handlers/handlers.yml
