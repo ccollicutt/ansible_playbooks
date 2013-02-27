@@ -1,0 +1,81 @@
+---
+
+#
+# Configure a custom repository at packages.serverascode.com/mrepo
+# that has the vcl, vcl-web, and vcl-managementnode RPMs
+#
+- name: check is serverascode repo is installed
+  action: shell ls /etc/yum.repos.d/serverascode-centos6.repo; echo $?
+- name: install the serverascode centos 6 yum repo file
+  action: copy src=files/serverascode-centos6.repo dest=/etc/yum.repos.d/serverascode-centos6.repo owner=root group=root mode=0644
+  tags:
+    - repo
+- name: make yum cache (could take a while)
+  action: shell /usr/bin/yum clean all; /usr/bin/yum makecache
+  tags:
+    - repo
+#
+# Install rpmforge and epel repositories
+#
+- name: install rpmforge repository
+  action: yum pkg=rpmforge-release state=installed
+  tags:
+    - repo
+- name: install epel repository
+  action: yum pkg=epel-release state=installed
+  tags:
+    - repo
+- name: make yum cache again (could take a while)
+  action: shell /usr/bin/yum clean all; /usr/bin/yum makecache
+  tags:
+    - repo
+
+#
+# Install required packages
+#
+- name: install packages 
+  action: yum pkg=$item state=installed
+  with_items:
+    - httpd
+    - wordpress
+    - mysql-server
+    - MySQL-python
+    - mod_ssl
+  tags:
+    - packages
+
+- name: make sure services are running
+  action: service name=$item state=started
+  with_items:
+    - httpd
+    - mysqld
+  tags:
+    - services
+    - database
+
+- name: make sure there is a wordpress mysql db
+  action: mysql_db name=wordpress state=present
+  tags:
+    - database
+
+- name: make sure there is a wordpress mysql user
+  action: mysql_user name=wordpress password=$mysql_user_password priv=wordpress.*:ALL state=present
+  tags:
+    - database
+
+- name: copy over wp-config.php from template
+  action: template src=templates/wp-config.j2 dest=/etc/wordpress/wp-config.php
+  tags:
+    - configuration
+
+#
+# As will probably use a custom domain, have to think about how to do this in ansible.
+# 
+#- name: copy over wordpress httpd configuration file
+#  action: copy src=files/wordpress.conf dest=/etc/httpd/conf.d/wordpress.conf
+#  notify:
+#    - reload apache
+#  tags:
+#    - configuration
+
+

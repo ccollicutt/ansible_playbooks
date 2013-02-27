@@ -7,8 +7,6 @@
 
 - name: install required software defined networking packages
   action: apt pkg=$item state=installed
-  tags: 
-    - build
   with_items:
   #  - auto-install
     - openvswitch-datapath-source 
@@ -24,40 +22,41 @@
     - python-zdaemon
     - kvm
     - wget
+    - dnsmasq
+  tags: 
+    - build
 
 - name: install linux linux-headers
   action: shell apt-get install -y linux-headers-$(uname -r)
+  ignore_errors: True
   tags:
     - build
-  ignore_errors: True
 
 - name: check if the openvswitch-switch module is already built and installed
   action: shell lsmod | grep openvswitch_mod > /dev/null; echo $?
-  tags:
-    - build
   ignore_errors: True
   register: openvswitch_module_installed
-  # openvswitch_module_installed should be empty if there is no module with that name
+  tags:
+    - build
 
 - name: build openvswitch-switch module
   action: shell module-assistant -t -q auto-install openvswitch-datapath
+  only_if: '${openvswitch_module_installed} > 0'
   tags:
     - build
-  only_if: '${openvswitch_module_installed} > 0'
 
 # TODO: Should only reboot if the module build actually suceeded
 - name: reboot
   action: command reboot
-  tags:
-    - install
-    - reboot
   only_if: '${openvswitch_module_installed} > 0'
+  tags:
+    - reboot
 
 - name: wait for the server to come back up after a reboot
   action: pause seconds=30
+  only_if: '${openvswitch_module_installed} > 0'
   tags:
     - reboot
-  only_if: '${openvswitch_module_installed} > 0'
 
 #
 # WAIT_FOR not working...???
@@ -83,30 +82,30 @@
 # only try to start if we just build the module
 - name: ensure openvswitch-switch service is running
   action: service name=openvswitch-switch state=started
+  only_if: '${openvswitch_module_installed} > 0'
   tags:
     - configure
-  only_if: '${openvswitch_module_installed} > 0'
 
 # TODO -- make br-int a variable
 - name: see if br-int is already running
   action: shell brctl show | grep br-int > /dev/null; echo $?
   register: bridge_up
+  ignore_errors: True
   tags:
     - configure
-  ignore_errors: True
 
 - name: add a bridge-utils
   action: shell ovs-vsctl add-br br-int
+  only_if: '${bridge_up} > 0'
   tags:
     - configure
-  only_if: '${bridge_up} > 0'
 
 # TODO -- pull this info from ansible
 - name: add a physical interface to the virtual bridge-utils
   action: shell ovs-vsctl add-port br-int eth2; ifconfig eth2 0; ifconfig br-int 192.168.100.10 netmask 255.255.255.0
+  only_if: '${bridge_up} > 0'
   tags:
     - configure
-  only_if: '${bridge_up} > 0'
 
 #- name: add a default route
 #  action: shell route del default gw 10.0.2.2 eth0; route add default gw 192.168.33.1 br-int; 
@@ -114,16 +113,17 @@
 
 - name: check if we have already cloned the pox repository
   action: file path=/usr/local/src/pox state=directory
-  tags:
-    - configure
   register: pox_installed
+  tags:
+    - build
+
 
 # Only bring in pox if it's not already there
 - name: clone pox repository
   action: shell cd /usr/local/src; git clone http://github.com/noxrepo/pox
-  tags:
-    - install
   only_if: '${pox_installed.changed}'
+  tags:
+    - build
 
 # maybe don't need to do this with zdaemon, it'll say it's already running..
 #- name: check is pox is running

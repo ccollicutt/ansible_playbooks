@@ -1,6 +1,6 @@
 ---
 - hosts: sdn
-  user: vagrant
+  user: curtis
   sudo: yes
 # vars_files:
 #   - vars/main.yml
