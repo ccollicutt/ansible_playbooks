@@ -7,3 +7,4 @@ openstack_essex/files/hosts
 *ansible_hosts
 *.iso
 openstack_essex/files/*.pub
+.DS_store
