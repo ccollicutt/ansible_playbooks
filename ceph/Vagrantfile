@@ -1,0 +1,59 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant::Config.run do |config|
+
+  config.vm.define :os1 do |os1_config|
+    #os1_config.vm.boot_mode = :gui
+    os1_config.vm.box = "precise64"
+    #os1_config.vm.provision :shell, :path => "ansible_playbooks/bootstrap_ubuntu_ansible.sh"
+    os1_config.vm.network :hostonly, "192.168.33.101"
+    os1_config.vm.network :hostonly, "192.168.100.130" # nic3
+    os1_config.vm.host_name = "os1"
+    os1_config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+    os1_config.vm.customize ["modifyvm", :id, "--nictype2", "Am79C973"]
+    os1_config.vm.customize ["modifyvm", :id, "--nictype3", "Am79C973"]
+    os1_config.vm.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    os1_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+  end
+
+  config.vm.define :ceph1 do |ceph1_config|
+    ceph1_config.vm.box = "precise64"
+    #ceph1_config.vm.provision :shell, :path => "ansible_playbooks/bootstrap_ubuntu_ansible.sh"
+    ceph1_config.vm.network :hostonly, "192.168.33.102"
+    ceph1_config.vm.network :hostonly, "192.168.100.131" # nic3
+    ceph1_config.vm.host_name = "ceph1"
+    ceph1_config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+    ceph1_config.vm.customize ["modifyvm", :id, "--nictype2", "Am79C973"]
+    ceph1_config.vm.customize ["modifyvm", :id, "--nictype3", "Am79C973"]
+    ceph1_config.vm.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    ceph1_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+  end
+
+  config.vm.define :ceph2 do |ceph2_config|
+    ceph2_config.vm.box = "precise64"
+    #ceph2_config.vm.provision :shell, :path => "ansible_playbooks/bootstrap_ubuntu_ansible.sh"
+    ceph2_config.vm.network :hostonly, "192.168.33.103"
+    ceph2_config.vm.network :hostonly, "192.168.100.132" # nic3
+    ceph2_config.vm.host_name = "ceph2"
+    ceph2_config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+    ceph2_config.vm.customize ["modifyvm", :id, "--nictype2", "Am79C973"]
+    ceph2_config.vm.customize ["modifyvm", :id, "--nictype3", "Am79C973"]
+    ceph2_config.vm.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    ceph2_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+  end
+
+  config.vm.define :ceph3 do |ceph3_config|
+    ceph3_config.vm.box = "precise64"
+    #ceph2_config.vm.provision :shell, :path => "ansible_playbooks/bootstrap_ubuntu_ansible.sh"
+    ceph3_config.vm.network :hostonly, "192.168.33.104"
+    ceph3_config.vm.network :hostonly, "192.168.100.133" # nic3
+    ceph3_config.vm.host_name = "ceph3"
+    ceph3_config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+    ceph3_config.vm.customize ["modifyvm", :id, "--nictype2", "Am79C973"]
+    ceph3_config.vm.customize ["modifyvm", :id, "--nictype3", "Am79C973"]
+    ceph3_config.vm.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    ceph3_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+  end
+
+end

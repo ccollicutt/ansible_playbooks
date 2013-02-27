@@ -1,0 +1,31 @@
+---
+
+- name: install required packages
+  action: apt name=$item state=installed
+  with_items:
+    - wget
+    - python-software-properties
+
+- name: check if ceph repo is already installed
+  action: shell ls /etc/apt/sources.list.d/ceph.list > /dev/null; echo $?
+  ignore_errors: True
+  register: ceph_repo_installed
+
+- name: get the ceph release.asc and install it
+  action: shell wget -q -O- 'https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc' | sudo apt-key add - 
+  only_if: '${ceph_repo_installed} > 0'
+
+# XXXX FIX ME XXXX
+- name: add ceph repo
+  action: shell echo deb http://ceph.com/debian/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list
+  only_if: '${ceph_repo_installed} > 0'
+
+- name: update
+  action: shell apt-get update
+  only_if: '${ceph_repo_installed} > 0'
+
+- name: ensure ceph is installed
+  action: apt name=ceph state=installed
+
+- name: copy over ceph config file
+  action: copy src=files/ceph.conf dest=/etc/ceph/ceph.conf
