@@ -1,0 +1,44 @@
+---
+
+- hosts: veewee
+  user: vagrant
+  sudo: yes
+  vars:
+    rvm: /usr/local/rvm/bin/rvm
+  tasks:
+
+  - name: check if ruby 1.9.2 is installed 
+    action: shell /usr/local/rvm/bin/rvm use 1.9.2
+    register: ruby_192_installed
+
+  - name: see if veewee is already installed
+    action: command ls /opt/veewee
+    register: veewee_installed
+    ignore_errors: True
+
+  - name: download veewee from its git repository
+    action: git repo=git://github.com/jedi4ever/veewee.git dest=/opt/veewee
+    only_if: ${veewee_installed.rc} > 0
+
+  - name: see if net-ssh 2.2.0 is installed
+    action: shell PATH=$PATH:/usr/local/rvm/bin && export PATH && source /opt/veewee/.rvmrc && gem list net-ssh | grep 2.2.0
+    register: netssh_installed
+
+  - name: install net-ssh 2.2.0
+    action: shell PATH=$PATH:/usr/local/rvm/bin && export PATH && source /opt/veewee/.rvmrc && gem install net-ssh --version 2.2.0
+    only_if: ${netssh_installed.rc} > 0
+
+  - name: edit gemspec to set version required to 2.2.0 due to dependency issues
+    action: lineinfile dest=/opt/veewee/veewee.gemspec regexp="^  s\.add_dependency \"net-ssh\"" line="  s.add_dependency \"net-ssh\", \"= 2.2.0\""
+    only_if: ${netssh_installed.rc} > 0
+
+  - name: see if bundle is installed
+    action: shell PATH=$PATH:/usr/local/rvm/bin && export PATH && source /opt/veewee/.rvmrc && gem list bundler
+    register: bundler_installed
+
+  - name: install bundler for the veewee version we are using
+    action: shell PATH=$PATH:/usr/local/rvm/bin && export PATH && source /opt/veewee/.rvmrc && gem install bundler
+    only_if: ${bundler_installed.rc} > 0
+
+  - name: finally bundle install
+    action: shell /bin/bash --login -c "source /opt/veewee/.rvmrc && cd /opt/veewee && bundle install"
