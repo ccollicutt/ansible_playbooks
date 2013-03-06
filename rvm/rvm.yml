@@ -1,0 +1,63 @@
+---
+
+- hosts: veewee
+  #user: vagrant
+  #sudo: yes
+  vars:
+    rvm_version: 1.9.2
+    rvm_command: /usr/local/rvm/bin/rvm
+  tasks:
+
+  - name: check if rvm is installed
+    action: shell ls /usr/local/rvm/bin/rvm > /dev/null
+    register: rvm_installed
+    ignore_errors: True
+
+  - name: check what os we are on
+    action: shell ls /etc/redhat-release > /dev/null
+    register: is_redhat
+    ignore_errors: True
+
+  # Need gcc to install rvm
+  - name: ensure required packages are installed for redhat-release
+    action: yum pkg=$item state=latest
+    only_if: ${is_redhat.rc} == 0
+    with_items:
+      - zlib-devel
+      - readline-devel
+      - libxml2-devel
+      - libxslt-devel
+      - sqlite
+      - sqlite-devel
+      - openssl-devel
+      - postgresql-devel
+      - make
+      - gcc
+
+  - name: ensure required packages are installed for ubuntu
+    action: apt pkg=$item state=latest
+    only_if: ${is_redhat.rc} > 0
+    with_items:
+      - build-essential
+      - git-core
+      - curl
+
+  - name: install rvm from the website
+    action: shell curl -L https://get.rvm.io | bash -s stable --ruby
+    only_if: ${rvm_installed.rc} > 0
+
+  # rvm use doesn't work from "bash --login -c ..."
+  # XXX Can't seem to do ${rvm_version} in the "login" command...
+  - name: check if ruby ${rvm_version} is installed via rvm 
+    action: shell bash --login -c "/usr/local/rvm/bin/rvm list | grep ruby-1.9.2"
+    register: ruby_version_installed
+    ignore_errors: True
+
+  - name: install ruby ${rvm_version} with rvm
+    action: shell bash --login -c "/usr/local/rvm/bin/rvm install 1.9.2"
+    only_if: ${ruby_version_installed.rc} > 0
+
+
+
+
+

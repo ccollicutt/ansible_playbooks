@@ -1,15 +1,23 @@
 ---
 
 - hosts: veewee
-  user: vagrant
-  sudo: yes
+ # user: root
+ # sudo: no
   vars:
     rvm: /usr/local/rvm/bin/rvm
   tasks:
 
+  # libvirt-devel is need to build ruby-libvirt
+  - name: ensure correct packages are installed
+    action: yum name=$item state=latest
+    with_items:
+      - libvirt-devel
+      - git
+
   - name: check if ruby 1.9.2 is installed 
     action: shell /usr/local/rvm/bin/rvm use 1.9.2
     register: ruby_192_installed
+    ignore_errors: True
 
   - name: see if veewee is already installed
     action: command ls /opt/veewee
@@ -42,3 +50,9 @@
 
   - name: finally bundle install
     action: shell /bin/bash --login -c "source /opt/veewee/.rvmrc && cd /opt/veewee && bundle install"
+  
+  - name: installed required gems
+    action: source /opt/veewee/.rvmrc && gem install ruby-libvirt
+
+  - name: checkout my veewee_definitions
+    action: git repo=git://github.com/curtisgithub/veewee_definitions.git dest=/opt/veewee/defintions
