@@ -7,5 +7,5 @@ Much of what is here is based of [Lorin's work](https://github.com/lorin/opensta
 
 Also I should not it's pretty dissorganized as I am still working my way through getting a grasp on Ansible and OpenStack best practices.
 
-Thanks,
+Thanks.
 [Curtis](http://serverascode.com)
