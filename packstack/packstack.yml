@@ -1,0 +1,75 @@
+---
+
+- hosts: openstack
+  user: root
+  sudo: no
+  #vars:
+  tasks:
+
+  #
+  # apis host only
+  # 
+
+  # note: could get 'apis' name from a var in var file instead
+  - name: make a .ssh directory for root
+    action: file path=/root/.ssh state=directory owner=root group=root mode=0700
+    when_string: ${inventory_hostname} ==  'apis'
+
+  - name: check if root's ssh key already exists
+    action: shell ls /root/.ssh/id_dsa || /usr/bin/ssh-keygen -q -t dsa -C '' -N '' -f /root/.ssh/id_dsa
+    when_string: ${inventory_hostname} ==  'apis'
+
+  - name: fetch the just generated key
+    action: fetch src=/root/.ssh/id_dsa.pub dest=fetch
+    when_string: ${inventory_hostname} ==  'apis'
+
+  #
+  # all hosts
+  #
+
+  - name: create an /root/.ssh directory
+    action: file state=directory path=/root/.ssh owner=root group=root mode=0700
+
+  # XXX Seems like the IP is going to be a problem at some point... XXX
+  - name: place newly generated ssh key on all hosts
+    action: copy src=fetch/192.168.100.130/root/.ssh/id_dsa.pub dest=/root/.ssh/authorized_keys owner=root group=root mode=0600
+    #authorized_key: user=charlie key='$FILE(/home/charlie/.ssh/id_rsa.pub)'
+
+  - name: test if the epel repo is installed
+    #action: shell yum repolist | grep epel
+    action: command ls /etc/yum.repos.d/epel.repo
+    register: epel_installed
+    ignore_errors: True
+
+  - name: install epel repo
+    action: shell rpm -ivh http://fedora.mirror.nexicom.net/epel/6/i386/epel-release-6-8.noarch.rpm
+    only_if: ${epel_installed.rc} > 0
+
+  # packstack was failing b/c it couldn't find puppet...perhaps something to do with the difference between centos and rhel
+  - name: ensure puppet is installed
+    action: yum name=puppet state=installed
+
+  #
+  # apis host only again
+  # 
+
+  - name: install required packages
+    action: yum name=$item state=installed
+    with_items: 
+      - git
+    when_string: ${inventory_hostname} ==  'apis'
+
+  - name: check if packstack has already been cloned
+    action: shell ls /root/packstack || git clone --recursive git://github.com/stackforge/packstack.git
+    when_string: ${inventory_hostname} ==  'apis' 
+
+  - name: copy config files to packstack directory
+    action: copy src=files/$item dest=/root/packstack/$item
+    with_items:
+      - packstack.cfg
+    when_string: ${inventory_hostname} ==  'apis'
+
+  - name: run packstack
+    action: shell /root/packstack/bin/packstack --answer-file=/root/packstack/packstack.cfg
+    when_string: ${inventory_hostname} ==  'apis'
+

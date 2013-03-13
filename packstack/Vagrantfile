@@ -1,0 +1,54 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant::Config.run do |config|
+
+  config.vm.define :apis do |apis_config|
+    apis_config.vm.box = "centos6"
+    apis_config.vm.network :hostonly, "192.168.33.101"
+    apis_config.vm.network :hostonly, "192.168.100.130" # nic3
+    apis_config.vm.host_name = "apis"
+    apis_config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+    apis_config.vm.customize ["modifyvm", :id, "--nictype2", "Am79C973"]
+    apis_config.vm.customize ["modifyvm", :id, "--nictype3", "Am79C973"]
+    apis_config.vm.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    apis_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+  end
+
+  config.vm.define :scheduler do |scheduler_config|
+    scheduler_config.vm.box = "centos6"
+    scheduler_config.vm.network :hostonly, "192.168.33.102"
+    scheduler_config.vm.network :hostonly, "192.168.100.131" # nic3
+    scheduler_config.vm.host_name = "scheduler"
+    scheduler_config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+    scheduler_config.vm.customize ["modifyvm", :id, "--nictype2", "Am79C973"]
+    scheduler_config.vm.customize ["modifyvm", :id, "--nictype3", "Am79C973"]
+    scheduler_config.vm.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    scheduler_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+  end
+
+  config.vm.define :compute01 do |compute01_config|
+    compute01_config.vm.box = "centos6"
+    compute01_config.vm.network :hostonly, "192.168.33.103"
+    compute01_config.vm.network :hostonly, "192.168.100.132" # nic3
+    compute01_config.vm.host_name = "compute01"
+    compute01_config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+    compute01_config.vm.customize ["modifyvm", :id, "--nictype2", "Am79C973"]
+    compute01_config.vm.customize ["modifyvm", :id, "--nictype3", "Am79C973"]
+    compute01_config.vm.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    compute01_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+  end
+
+  config.vm.define :compute02 do |compute02_config|
+    compute02_config.vm.box = "centos6"
+    compute02_config.vm.network :hostonly, "192.168.33.104"
+    compute02_config.vm.network :hostonly, "192.168.100.133" # nic3
+    compute02_config.vm.host_name = "compute02"
+    compute02_config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+    compute02_config.vm.customize ["modifyvm", :id, "--nictype2", "Am79C973"]
+    compute02_config.vm.customize ["modifyvm", :id, "--nictype3", "Am79C973"]
+    compute02_config.vm.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    compute02_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+  end
+
+end

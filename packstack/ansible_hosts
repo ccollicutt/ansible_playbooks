@@ -1,0 +1,15 @@
+[openstack]
+apis ansible_ssh_host=192.168.100.130
+scheduler ansible_ssh_host=192.168.100.131
+compute01 ansible_ssh_host=192.168.100.132
+compute02 ansible_ssh_host=192.168.100.133
+
+#[apis]
+#apis ansible_ssh_host=192.168.100.130
+
+#[scheduler]
+#scheduler ansible_ssh_host=192.168.100.131
+
+#[compute]
+#compute01 ansible_ssh_host=192.168.100.132
+#compute02 ansible_ssh_host=192.168.100.133
