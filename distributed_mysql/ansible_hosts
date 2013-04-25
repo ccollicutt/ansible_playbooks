@@ -1,0 +1,11 @@
+[percona]
+percona0 ansible_ssh_host=192.168.20.10
+percona1 ansible_ssh_host=192.168.20.11
+percona2 ansible_ssh_host=192.168.20.12
+
+[percona_bootstrap]
+percona0 ansible_ssh_host=192.168.20.10
+
+[haproxy]
+haproxy0 ansible_ssh_host=192.168.20.20
+haproxy1 ansible_ssh_host=192.168.20.21

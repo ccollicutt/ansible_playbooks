@@ -1,0 +1,40 @@
+---
+
+- name: check if percona yum repository is already installed
+  action: shell ls /etc/yum.repos.d/Percona.repo
+  register: percona_repo_installed
+  ignore_errors: True
+
+- name: install percona yum repository
+  action: shell  rpm -Uhv http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+  only_if: ${percona_repo_installed.rc} > 0
+
+- name: make sure mysql-libs isn't installed
+  #action: yum pkg=mysql-libs state=removed
+  action: shell rpm -e --nodeps mysql-libs
+  ignore_errors: True
+
+
+- name: install required percona packages
+  action: yum pkg=$item state=latest
+  register: install_percona
+  with_items:
+    - Percona-XtraDB-Cluster-server
+    - Percona-XtraDB-Cluster-client
+    - xtrabackup
+
+#- name: clear out /var/lib/mysql/mysql
+#  action: shell rm -rf /var/lib/mysql/mysql/*
+#  only_if: ${install_percona.changed}
+
+#- name: initialize mysql data dir
+#  action: shell mysql_install_db --datadir=/var/lib/mysql --user=mysql 
+#  only_if: ${install_percona.changed}
+
+- name: make sure iptables is stopped
+  action: service name=iptables state=stopped
+
+- name: copy over my.conf template
+  action: template src=../roles/percona/templates/my.cnf dest=/etc/my.cnf
+
+

@@ -1,0 +1,16 @@
+---
+# This playbook installs HAProxy and configures it.
+
+- name: Download and install haproxy and socat
+  yum: name=$item state=installed
+  with_items:
+  - haproxy
+  - socat
+
+- name: Open firewall port for haproxy.
+  lineinfile: dest=/etc/sysconfig/iptables state=present regexp="$listenport" insertafter="^:OUTPUT " line="-A INPUT -p tcp  --dport $listenport -j  ACCEPT"
+  notify: restart iptables
+
+- name: Configure the haproxy cnf file with hosts
+  template: src=../roles/haproxy/templates/haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+  notify: restart haproxy
