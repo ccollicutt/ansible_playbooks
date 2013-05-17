@@ -1,0 +1,5 @@
+---
+
+root_mysql_password: Passw0rd
+state_snapshot_transfer_user: sstuser
+state_snapshot_transfer_password: s3cret

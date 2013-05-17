@@ -14,14 +14,22 @@
   action: shell rpm -e --nodeps mysql-libs
   ignore_errors: True
 
-
 - name: install required percona packages
-  action: yum pkg=$item state=latest
+  action: yum pkg=$item state=installed
   register: install_percona
   with_items:
     - Percona-XtraDB-Cluster-server
     - Percona-XtraDB-Cluster-client
     - xtrabackup
+
+- name: make sure vagrant is in mysql group
+  action: user name=vagrant groups=mysql
+
+- name: copy over root's .my.cnf file
+  action: template src=../roles/percona/templates/root_my.cnf dest=/root/.my.cnf owner=root group=root mode=0600
+
+- name: copy over innodbbackupex logrotate configuration file
+  action: copy src=../roles/percona/files/innobackupex.conf dest=/etc/logrotate.d/innobackupex.conf
 
 #- name: clear out /var/lib/mysql/mysql
 #  action: shell rm -rf /var/lib/mysql/mysql/*
@@ -34,7 +42,12 @@
 - name: make sure iptables is stopped
   action: service name=iptables state=stopped
 
+- name: make sure mysql is running
+  action: service name=mysql state=running
+
 - name: copy over my.conf template
   action: template src=../roles/percona/templates/my.cnf dest=/etc/my.cnf
 
+- name: create myql backup directory
+  action: file path=/var/backups/mysql owner=root group=root mode=0750 state=directory
 
