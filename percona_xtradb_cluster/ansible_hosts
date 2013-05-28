@@ -1,7 +1,7 @@
 [percona]
-percona0 ansible_ssh_host=10.0.0.54
-percona1 ansible_ssh_host=10.0.0.56
-percona2 ansible_ssh_host=10.0.0.55
+percona0 ansible_ssh_host=10.0.0.71
+percona1 ansible_ssh_host=10.0.0.69
+percona2 ansible_ssh_host=10.0.0.70
 
 [haproxy]
 haproxy0 ansible_ssh_host=192.168.20.20

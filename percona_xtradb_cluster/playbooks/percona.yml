@@ -10,7 +10,7 @@
   tasks:
    - include: ../roles/percona/tasks/bootstrap.yml
 
-- hosts: percona[1:2]
+- hosts: percona[1-2]
   user: root
   tasks:
   - include: ../roles/percona/tasks/start.yml
