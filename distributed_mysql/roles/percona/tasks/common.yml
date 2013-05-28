@@ -22,32 +22,17 @@
     - Percona-XtraDB-Cluster-client
     - xtrabackup
 
-- name: make sure vagrant is in mysql group
-  action: user name=vagrant groups=mysql
-
-- name: copy over root's .my.cnf file
-  action: template src=../roles/percona/templates/root_my.cnf dest=/root/.my.cnf owner=root group=root mode=0600
-
 - name: copy over innodbbackupex logrotate configuration file
   action: copy src=../roles/percona/files/innobackupex.conf dest=/etc/logrotate.d/innobackupex.conf
 
-#- name: clear out /var/lib/mysql/mysql
-#  action: shell rm -rf /var/lib/mysql/mysql/*
-#  only_if: ${install_percona.changed}
-
-#- name: initialize mysql data dir
-#  action: shell mysql_install_db --datadir=/var/lib/mysql --user=mysql 
-#  only_if: ${install_percona.changed}
-
-- name: make sure iptables is stopped
+- name: make sure iptables is STOPPED
   action: service name=iptables state=stopped
 
-- name: make sure mysql is running
-  action: service name=mysql state=running
+- name: make sure mysql is STOPPED 
+  action: service name=mysql state=stopped
 
 - name: copy over my.conf template
   action: template src=../roles/percona/templates/my.cnf dest=/etc/my.cnf
 
 - name: create myql backup directory
   action: file path=/var/backups/mysql owner=root group=root mode=0750 state=directory
-

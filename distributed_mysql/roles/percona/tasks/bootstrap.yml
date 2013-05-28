@@ -1,0 +1,44 @@
+---
+
+#
+# This playbook should only run on one cluster node 
+# 
+
+# check if mysql is running, if so don't bootstrap
+- name: is mysql running?
+  action: shell service mysql status
+  register: is_mysql_running
+  ignore_errors: true
+
+#
+# If mysql is already running don't bootstrap it
+# 
+
+- name: bootstrap by starting mysql with gcom://
+  action: shell /etc/init.d/mysql start --wsrep-cluster-address="gcomm://"
+  only_if: "$is_mysql_running > 0"
+
+- name:  set mysql root password
+  action: shell mysql -e "UPDATE mysql.user SET password=PASSWORD('$root_mysql_password') where user='root';" 
+  only_if: "$is_mysql_running > 0"
+
+- name: create state snapshot transfer user from anywhere
+  action: shell mysql -e "CREATE USER '$state_snapshot_transfer_user'@'%' IDENTIFIED BY '$state_snapshot_transfer_password';"
+  only_if: "$is_mysql_running > 0"
+
+#
+- name: create state snapshot transfer user from localhost
+  action: shell mysql -e "CREATE USER '$state_snapshot_transfer_user'@'localhost' IDENTIFIED BY '$state_snapshot_transfer_password';"
+  only_if: "$is_mysql_running > 0"
+
+- name: set privileges for state snapshot transfer user and flush privileges
+  action: shell mysql -e "GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO '$state_snapshot_transfer_user'@'%';"
+  only_if: "$is_mysql_running > 0"
+
+- name: set privileges for state snapshot transfer user and flush privileges
+  action: shell mysql -e "GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO '$state_snapshot_transfer_user'@'localhost'; FLUSH PRIVILEGES;"
+  only_if: "$is_mysql_running > 0"
+
+#- name: stop mysql running with gcom:// blank
+#  action: shell /etc/init.d/mysql stop
+#  only_if: "$is_mysql_running > 0"

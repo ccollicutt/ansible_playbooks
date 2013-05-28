@@ -1,7 +1,5 @@
 ---
-#This Playbook deploys the whole application stack in this site.  
 
 - include: playbooks/percona.yml
-- include: playbooks/haproxy.yml
 
 

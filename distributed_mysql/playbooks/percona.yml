@@ -1,12 +1,21 @@
 ---
-# Playbook for HAProxy operations
 
 - hosts: percona 
-  user: vagrant
-  sudo: True 
+  user: root
   tasks:
-  # - include: ../roles/common/tasks/main.yml
-   - include: ../roles/percona/tasks/main.yml
-  #handlers:
-  # - include: ../roles/haproxy/handlers/main.yml
-  # - include: ../roles/common/handlers/main.yml
+   - include: ../roles/percona/tasks/common.yml
+
+- hosts: percona[0]
+  user: root
+  tasks:
+   - include: ../roles/percona/tasks/bootstrap.yml
+
+- hosts: percona[1:2]
+  user: root
+  tasks:
+  - include: ../roles/percona/tasks/start.yml
+
+- hosts: percona[0]
+  user: root
+  tasks:
+   - include: ../roles/percona/tasks/start.yml

@@ -1,0 +1,11 @@
+---
+
+#
+# Now copy over the .my.cnf template after we've done the bootstrapping
+#
+- name: copy over root's .my.cnf file
+  action: template src=../roles/percona/templates/root_my.cnf dest=/root/.my.cnf owner=root group=root mode=0600
+
+- name: make sure mysql is running
+  action: service name=mysql state=restarted
+
