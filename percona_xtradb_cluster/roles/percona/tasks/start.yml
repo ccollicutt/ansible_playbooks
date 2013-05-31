@@ -6,6 +6,14 @@
 - name: copy over root's .my.cnf file
   action: template src=../roles/percona/templates/root_my.cnf dest=/root/.my.cnf owner=root group=root mode=0600
 
-- name: make sure mysql is running
+- name: check if the cluster is already up
+  action: shell msyql --silent -e 'show status like "wsrep_cluster_size"' | cut -f 2
+  register: wsrep_cluster_size
+  ignore_errors: true
+
+- name: if the cluster isn't started already, start it 
   action: service name=mysql state=restarted
+  # not sure what wsrep_custer_size is actually going to be in this case...???
+  # I want stdout but .stdout wasn't working...
+  only_if: ${wsrep_cluster_size.rc} != 0 or ${wsrep_cluster_size} < 1 
 

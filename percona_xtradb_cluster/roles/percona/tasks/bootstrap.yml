@@ -16,25 +16,26 @@
 
 - name: bootstrap by starting mysql with gcom://
   action: shell /etc/init.d/mysql start --wsrep-cluster-address="gcomm://"
-  only_if: "$is_mysql_running > 0"
+  only_if: ${is_mysql_running.rc} > 0
 
 - name:  set mysql root password
   action: shell mysql -e "UPDATE mysql.user SET password=PASSWORD('$root_mysql_password') where user='root';" 
-  only_if: "$is_mysql_running > 0"
+  only_if: ${is_mysql_running.rc} > 0
 
 - name: create state snapshot transfer user from anywhere
   action: shell mysql -e "CREATE USER '$state_snapshot_transfer_user'@'%' IDENTIFIED BY '$state_snapshot_transfer_password';"
-  only_if: "$is_mysql_running > 0"
+  only_if: ${is_mysql_running.rc} > 0
 
 #
 - name: create state snapshot transfer user from localhost
   action: shell mysql -e "CREATE USER '$state_snapshot_transfer_user'@'localhost' IDENTIFIED BY '$state_snapshot_transfer_password';"
-  only_if: "$is_mysql_running > 0"
+  only_if: "$${is_mysql_running.rc} > 0"
+  only_if: ${is_mysql_running.rc} > 0
 
 - name: set privileges for state snapshot transfer user
   action: shell mysql -e "GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO '$state_snapshot_transfer_user'@'%';"
-  only_if: "$is_mysql_running > 0"
+  only_if: ${is_mysql_running.rc} > 0
 
 - name: set privileges for state snapshot transfer user and flush privileges
   action: shell mysql -e "GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO '$state_snapshot_transfer_user'@'localhost'; FLUSH PRIVILEGES;"
-  only_if: "$is_mysql_running > 0"
+  only_if: ${is_mysql_running.rc} > 0

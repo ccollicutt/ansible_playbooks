@@ -28,9 +28,6 @@
 - name: make sure iptables is STOPPED
   action: service name=iptables state=stopped
 
-- name: make sure mysql is STOPPED 
-  action: service name=mysql state=stopped
-
 - name: copy over my.conf template
   action: template src=../roles/percona/templates/my.cnf dest=/etc/my.cnf
 
