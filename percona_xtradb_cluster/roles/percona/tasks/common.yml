@@ -23,7 +23,7 @@
     - xtrabackup
 
 - name: copy over innodbbackupex logrotate configuration file
-  action: copy src=../roles/percona/files/innobackupex.conf dest=/etc/logrotate.d/innobackupex.conf
+  action: copy src=../roles/percona/files/innobackupex.conf dest=/etc/logrotate.d/innobackupex
 
 - name: make sure iptables is STOPPED
   action: service name=iptables state=stopped
