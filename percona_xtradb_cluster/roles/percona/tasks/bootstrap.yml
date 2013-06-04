@@ -29,7 +29,6 @@
 #
 - name: create state snapshot transfer user from localhost
   action: shell mysql -e "CREATE USER '$state_snapshot_transfer_user'@'localhost' IDENTIFIED BY '$state_snapshot_transfer_password';"
-  only_if: "$${is_mysql_running.rc} > 0"
   only_if: ${is_mysql_running.rc} > 0
 
 - name: set privileges for state snapshot transfer user
