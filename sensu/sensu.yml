@@ -1,0 +1,103 @@
+---
+- hosts: sensu 
+#  vars:
+#    http_port: 80
+#    max_clients: 200
+  user: ubuntu
+  sudo: true 
+  tasks:
+
+
+  #
+  # Repositories
+  #
+
+  - name: ensure rabbitmq repository is installed
+    action: apt_repository repo='deb http://www.rabbitmq.com/debian/ testing main'
+  - name: ensure rabbitmq gpg key is installed
+    action: apt_key url=http://www.rabbitmq.com/rabbitmq-signing-key-public.asc state=present
+  - name: ensure sensu repository is installed
+    action: apt_repository repo='deb     http://repos.sensuapp.org/apt sensu main'
+  - name: ensure sensu gpg key is installed
+    action: apt_key url=http://repos.sensuapp.org/apt/pubkey.gpg state=present
+  
+
+
+  # 
+  # Rabbitmq
+  #
+
+  - name: install rabbitmq packages
+    action: apt pkg=rabbitmq-server state=installed force=yes
+  - name: create ssl directory
+    action: file path=/etc/rabbitmq/ssl state=directory
+  # I created the pem files with     git clone git://github.com/joemiller/joemiller.me-intro-to-sensu.git
+  - name: copy over pem file
+    action: copy src=files/$item dest=/etc/rabbitmq/ssl/$item
+    with_items:
+      - server_key.pem
+      - server_cert.pem
+      - cacert.pem
+  - name: copy over rabbitmq.config file
+    action: copy src=files/rabbitmq.config dest=/etc/rabbitmq/rabbitmq.config
+  - name: start up rabbitmq
+    action: service name=rabbitmq-server state=started enabled=yes
+
+  #
+  # rabbitmqctl XXX not idempotent XXX
+  # 
+  - name: rabbitmqctl add_vhost 
+    action: shell rabbitmqctl add_vhost /sensu
+    ignore_errors: true
+  - name: rabbitmqctl add_user
+    action: shell rabbitmqctl add_user sensu mypass
+    ignore_errors: true
+  - name: rabbitmqctl set_permissions
+    action: shell rabbitmqctl set_permissions -p /sensu sensu ".*" ".*" ".*"
+    ignore_errors: true
+
+
+  #
+  # Redis
+  #
+ 
+  - name: install redis-server
+    action: apt name=redis-server state=installed
+  - name: start redis
+    action: service name=redis-server state=started enabled=yes
+
+  #
+  # Sensu
+  #
+
+  # Certificates 
+  - name: ensure there is a /etc/sensu/ssl
+    action: file path=/etc/sensu/ssl state=directory
+  - name: install client certificates
+    action: copy src=files/$item dest=/etc/sensu/ssl/
+    with_items:
+      - client_key.pem
+      - client_cert.pem 
+
+   # Install packages and start services
+  - name: install sensu omnibus package
+    action: apt name=sensu state=installed force=yes
+  - name: start and enable sensu services
+    action: service name=$item state=started enabled=yes
+    with_items:
+      - sensu-server
+      - sensu-api
+      - sensu-client
+      - sensu-dashboard
+
+
+  - name: install sensu config.json
+    action: copy src=files/sensu.config.json dest=/etc/sensu/config.json
+   
+  - name: install sensu client.json
+    action: copy src=files/sensu.client.json dest=/etc/sensu/conf.d/client.json
+  
+
+#  handlers:
+#    - name: restart apache
+#      action: service name=httpd state=restarted
