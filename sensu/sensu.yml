@@ -7,7 +7,6 @@
   sudo: true 
   tasks:
 
-
   #
   # Repositories
   #
@@ -20,8 +19,6 @@
     action: apt_repository repo='deb     http://repos.sensuapp.org/apt sensu main'
   - name: ensure sensu gpg key is installed
     action: apt_key url=http://repos.sensuapp.org/apt/pubkey.gpg state=present
-  
-
 
   # 
   # Rabbitmq
@@ -31,6 +28,7 @@
     action: apt pkg=rabbitmq-server state=installed force=yes
   - name: create ssl directory
     action: file path=/etc/rabbitmq/ssl state=directory
+
   # I created the pem files with     git clone git://github.com/joemiller/joemiller.me-intro-to-sensu.git
   - name: copy over pem file
     action: copy src=files/$item dest=/etc/rabbitmq/ssl/$item
@@ -46,6 +44,7 @@
   #
   # rabbitmqctl XXX not idempotent XXX
   # 
+
   - name: rabbitmqctl add_vhost 
     action: shell rabbitmqctl add_vhost /sensu
     ignore_errors: true
@@ -55,7 +54,6 @@
   - name: rabbitmqctl set_permissions
     action: shell rabbitmqctl set_permissions -p /sensu sensu ".*" ".*" ".*"
     ignore_errors: true
-
 
   #
   # Redis
@@ -79,6 +77,12 @@
       - client_key.pem
       - client_cert.pem 
 
+  - name: install sensu config.json
+    action: copy src=files/sensu.config.json dest=/etc/sensu/config.json
+   
+  - name: install sensu client.json
+    action: copy src=files/sensu.client.json dest=/etc/sensu/conf.d/client.json
+
    # Install packages and start services
   - name: install sensu omnibus package
     action: apt name=sensu state=installed force=yes
@@ -89,14 +93,6 @@
       - sensu-api
       - sensu-client
       - sensu-dashboard
-
-
-  - name: install sensu config.json
-    action: copy src=files/sensu.config.json dest=/etc/sensu/config.json
-   
-  - name: install sensu client.json
-    action: copy src=files/sensu.client.json dest=/etc/sensu/conf.d/client.json
-  
 
 #  handlers:
 #    - name: restart apache
