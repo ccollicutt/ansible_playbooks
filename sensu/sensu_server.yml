@@ -1,5 +1,5 @@
 ---
-- hosts: sensu 
+- hosts: sensu_servers
 #  vars:
 #    http_port: 80
 #    max_clients: 200
@@ -48,15 +48,16 @@
 
   # I created the pem files with git clone git://github.com/joemiller/joemiller.me-intro-to-sensu.git
   - name: copy over pem file
-    action: copy src=files/$item dest=/etc/rabbitmq/ssl/$item mode=0600 owner=root group=root
+    action: copy src=files/$item dest=/etc/rabbitmq/ssl/$item mode=0600 owner=rabbitmq group=rabbitmq
     with_items:
       - server_key.pem
       - server_cert.pem
       - cacert.pem
   - name: copy over rabbitmq.config file
     action: copy src=files/rabbitmq.config dest=/etc/rabbitmq/rabbitmq.config
-  - name: start up rabbitmq
-    action: service name=rabbitmq-server state=started enabled=yes
+    #notify: restart rabbitmq
+  - name: restart rabbitmq-server
+    action: service name=rabbitmq-server state=restarted enabled=yes
 
   #
   # rabbitmqctl XXX not idempotent XXX
@@ -84,20 +85,19 @@
   #
   # Sensu
   #
+  # Install packages and start services
+  - name: install sensu omnibus package
+    action: apt name=sensu state=installed force=yes
 
   # Certificates 
   - name: ensure there is a /etc/sensu/ssl
     action: file path=/etc/sensu/ssl state=directory
   - name: install client certificates
-    action: copy src=files/$item dest=/etc/sensu/ssl/
+    action: copy src=files/$item dest=/etc/sensu/ssl/ mode=0600 group=sensu owner=sensu
     with_items:
       - client_key.pem
       - client_cert.pem 
 
-
-  # Install packages and start services
-  - name: install sensu omnibus package
-    action: apt name=sensu state=installed force=yes
 
   # Install configuration files
   - name: install sensu config.json
@@ -114,6 +114,6 @@
       - sensu-client
       - sensu-dashboard
 
-#  handlers:
-#    - name: restart apache
-#      action: service name=httpd state=restarted
+  handlers:
+    - name: restart rabbitmq-server
+      action: service name=rabbitmq-server state=restarted
