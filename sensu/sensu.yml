@@ -3,9 +3,26 @@
 #  vars:
 #    http_port: 80
 #    max_clients: 200
-  user: ubuntu
+  user: vagrant
   sudo: true 
   tasks:
+
+  #
+  # install apt-add-repository
+  - name: ensure apt-add-repository is installed
+    action: apt name=python-software-properties state=installed
+
+  #
+  # ntp
+  #
+  - name: install ntp
+    action: apt name=ntp state=installed
+   
+  - name: run ntpdate
+    action: shell ntpdate time.srv.ualberta.ca
+    ignore_errors: true
+  - name: start ntpd service
+    action: service name=ntp state=started enabled=yes
 
   #
   # Repositories
@@ -29,9 +46,9 @@
   - name: create ssl directory
     action: file path=/etc/rabbitmq/ssl state=directory
 
-  # I created the pem files with     git clone git://github.com/joemiller/joemiller.me-intro-to-sensu.git
+  # I created the pem files with git clone git://github.com/joemiller/joemiller.me-intro-to-sensu.git
   - name: copy over pem file
-    action: copy src=files/$item dest=/etc/rabbitmq/ssl/$item
+    action: copy src=files/$item dest=/etc/rabbitmq/ssl/$item mode=0600 owner=root group=root
     with_items:
       - server_key.pem
       - server_cert.pem
@@ -77,15 +94,18 @@
       - client_key.pem
       - client_cert.pem 
 
+
+  # Install packages and start services
+  - name: install sensu omnibus package
+    action: apt name=sensu state=installed force=yes
+
+  # Install configuration files
   - name: install sensu config.json
     action: copy src=files/sensu.config.json dest=/etc/sensu/config.json
-   
   - name: install sensu client.json
     action: copy src=files/sensu.client.json dest=/etc/sensu/conf.d/client.json
 
-   # Install packages and start services
-  - name: install sensu omnibus package
-    action: apt name=sensu state=installed force=yes
+  # Start all the services
   - name: start and enable sensu services
     action: service name=$item state=started enabled=yes
     with_items:
