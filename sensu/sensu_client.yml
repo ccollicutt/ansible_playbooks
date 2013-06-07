@@ -1,0 +1,52 @@
+---
+- hosts: sensu_clients
+#  vars:
+#    http_port: 80
+#    max_clients: 200
+  user: vagrant
+  sudo: true
+  tasks:
+
+  #
+  # NOTE: This needs to be properly split out
+  #
+
+  #
+  # install apt-add-repository
+  #
+  - name: ensure apt-add-repository is installed
+    action: apt name=python-software-properties state=installed
+
+  - name: ensure sensu repository is installed
+    action: apt_repository repo='deb     http://repos.sensuapp.org/apt sensu main'
+  - name: ensure sensu gpg key is installed
+    action: apt_key url=http://repos.sensuapp.org/apt/pubkey.gpg state=present
+
+  #
+  # Sensu
+  #
+  # Install packages and start services
+  - name: install sensu omnibus package
+    action: apt name=sensu state=installed force=yes
+
+  # Certificates 
+  - name: ensure there is a /etc/sensu/ssl
+    action: file path=/etc/sensu/ssl state=directory
+  - name: install client certificates
+    action: copy src=files/$item dest=/etc/sensu/ssl/ mode=0600 group=sensu owner=sensu
+    with_items:
+      - client_key.pem
+      - client_cert.pem 
+
+
+  # Install configuration files
+  - name: install sensu config.json
+    action: copy src=files/sensu.config.json dest=/etc/sensu/config.json
+  - name: install sensu client.json
+    action: copy src=files/sensu.client.json dest=/etc/sensu/conf.d/client.json
+
+  # Start all the services
+  - name: start and enable sensu services
+    action: service name=$item state=started enabled=yes
+    with_items:
+      - sensu-client
