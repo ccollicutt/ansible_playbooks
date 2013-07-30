@@ -9,3 +9,5 @@ openstack_essex/files/hosts
 openstack_essex/files/*.pub
 .DS_store
 wordpress/vars/main.yml
+moodle/vars/main.yml
+moodle/ansible_hosts
