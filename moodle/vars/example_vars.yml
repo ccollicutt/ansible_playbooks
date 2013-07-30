@@ -1,0 +1,9 @@
+---
+
+mysql_user: CHANGEME
+mysql_pass: CHANGEME 
+moodle_wwwroot: CHANGEME
+os_tenant: CHANGEME 
+os_user: CHANGEME 
+os_password: CHANGEME 
+os_auth: CHANGEME

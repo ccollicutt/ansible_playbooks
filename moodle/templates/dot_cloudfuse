@@ -1,0 +1,4 @@
+username={{ os_user }}
+tenant={{ os_tenant }}
+password={{ os_password }} 
+authurl={{ os_auth }}
