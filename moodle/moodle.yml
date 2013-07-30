@@ -1,0 +1,109 @@
+---
+- hosts: moodle
+  user: ubuntu
+  sudo: True
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+  #- name: update apt
+  #  shell: apt-get update
+  - name: install various packages
+    apt: pkg=$item state=present
+    with_items:
+      - apache2
+      - php5
+      - mysql-server
+      - mysql-client
+      - php5-mysql
+      - git
+      - python-mysqldb
+      - php5-curl
+      - php5-intl
+      - php5-xmlrpc
+      - build-essential
+      - libcurl4-openssl-dev
+      - libxml2-dev 
+      - libssl-dev 
+      - libfuse-dev
+
+
+  - name: grab moodle from git repo
+    git: repo=git://git.moodle.org/moodle.git version=MOODLE_24_STABLE dest=/usr/local/share/moodle
+  
+  - name: create moodle database
+    mysql_db: name=moodle state=present encoding=utf8
+
+  - name: setup mysql user
+    mysql_user: name={{ mysql_user }} password={{ mysql_pass }} priv=moodle.*:ALL state=present
+
+  - name: create moodle datadir
+    file: path=/var/lib/moodle state=directory owner=www-data group=root mode=0770
+
+  - name: install apache2 host file for moodle
+    copy: src=files/moodle_apache.conf dest=/etc/apache2/sites-available/moodleobj
+
+  - name: check if self-signed cert is already created
+    shell: ls /etc/ssl/private/ssl-cert-snakeoil.key
+    register: self_cert_exists
+    ignore_errors: True
+
+  - name: create self-signed cert
+    shell:  make-ssl-cert generate-default-snakeoil –force-overwrite
+    when: self_cert_exists.rc > 0
+
+  - name: check if default-ssl is already enabled
+    shell: ls /etc/apache2/sites-enabled/default-ssl
+    register: default_ssl_enabled
+    ignore_errors: True
+
+  - name: enable ssl module
+    shell: a2enmod ssl
+    when: default_ssl_enabled.rc > 0
+    notify: restart apache2
+
+    # Shoudl check to see if it's enabled already
+  - name: enable moodleobj
+    shell: a2ensite moodleobj
+    notify: restart apache2
+
+  - name: enable default-ssl
+    shell: a2ensite default-ssl
+    when: default_ssl_enabled.rc > 0
+    notify: restart apache2
+
+  - name: install moodle config file from template
+    template: src=templates/moodle_config.php dest=/usr/local/share/moodle/config.php owner=root group=root mode=0755
+
+  - name: install apache2 ssl config file from template
+    template: src=templates/apache_ssl.conf dest=/etc/apache2/sites-available/default-ssl owner=root group=root mode=0644
+    notify: restart apache2
+
+  - name: install root's .cloudfuse file
+    template: src=templates/dot_cloudfuse dest=/root/.cloudfuse owner=root group=root mode=0600
+    notify: restart apache2
+
+  - name: grab cloudfuse from github
+    git: repo=https://github.com/redbo/cloudfuse.git dest=/usr/local/src/cloudfuse
+
+  - name: check if cloudfuse binary exists already
+    shell: which cloudfuse
+    register: cloudfuse_installed
+    ignore_errors: True
+
+  - name: configure cloudfuse
+    shell: chdir=/usr/local/src/cloudfuse ./configure
+    when: cloudfuse_installed.rc > 0
+
+  - name: make cloudfuse
+    shell: chdir=/usr/local/src/cloudfuse make
+    when: cloudfuse_installed.rc > 0
+
+  - name: make install cloudfuse
+    shell: chdir=/usr/local/src/cloudfuse make install
+    when: cloudfuse_installed.rc > 0
+    
+
+  handlers:
+  - name: restart apache2
+    service: name=apache2 state=restarted
