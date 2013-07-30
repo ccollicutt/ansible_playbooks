@@ -1,0 +1,3 @@
+This is a super basic Moodle playbook that also configures Cloudfuse for testing with Moodle.
+
+Copy vars/example_vars.yml to vars/main.yml and edit to add your own variables and passwords and such.
