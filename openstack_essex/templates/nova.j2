@@ -74,3 +74,6 @@ metadata_host={{ controller_ip }}
 novncproxy_base_url=http://{{ controller_ip }}:6080/vnc_auto.html
 vncserver_proxyclient_address={{ my_ip }}
 vncserver_listen={{ my_ip }}
+
+# SCHEDULER change for GRIDCENTRIC
+scheduler_driver = nova.scheduler.simple.SimpleScheduler
