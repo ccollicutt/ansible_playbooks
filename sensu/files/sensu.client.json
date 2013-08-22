@@ -1,0 +1,7 @@
+    {
+      "client": {
+        "name": "sensu.example.com",
+        "address": "192.168.33.10",
+        "subscriptions": [ "test" ]
+      }
+    }

@@ -1,0 +1,119 @@
+---
+- hosts: sensu_servers
+#  vars:
+#    http_port: 80
+#    max_clients: 200
+  user: vagrant
+  sudo: true 
+  tasks:
+
+  #
+  # install apt-add-repository
+  - name: ensure apt-add-repository is installed
+    action: apt name=python-software-properties state=installed
+
+  #
+  # ntp
+  #
+  - name: install ntp
+    action: apt name=ntp state=installed
+   
+  - name: run ntpdate
+    action: shell ntpdate time.srv.ualberta.ca
+    ignore_errors: true
+  - name: start ntpd service
+    action: service name=ntp state=started enabled=yes
+
+  #
+  # Repositories
+  #
+
+  - name: ensure rabbitmq repository is installed
+    action: apt_repository repo='deb http://www.rabbitmq.com/debian/ testing main'
+  - name: ensure rabbitmq gpg key is installed
+    action: apt_key url=http://www.rabbitmq.com/rabbitmq-signing-key-public.asc state=present
+  - name: ensure sensu repository is installed
+    action: apt_repository repo='deb     http://repos.sensuapp.org/apt sensu main'
+  - name: ensure sensu gpg key is installed
+    action: apt_key url=http://repos.sensuapp.org/apt/pubkey.gpg state=present
+
+  # 
+  # Rabbitmq
+  #
+
+  - name: install rabbitmq packages
+    action: apt pkg=rabbitmq-server state=installed force=yes
+  - name: create ssl directory
+    action: file path=/etc/rabbitmq/ssl state=directory
+
+  # I created the pem files with git clone git://github.com/joemiller/joemiller.me-intro-to-sensu.git
+  - name: copy over pem file
+    action: copy src=files/$item dest=/etc/rabbitmq/ssl/$item mode=0600 owner=rabbitmq group=rabbitmq
+    with_items:
+      - server_key.pem
+      - server_cert.pem
+      - cacert.pem
+  - name: copy over rabbitmq.config file
+    action: copy src=files/rabbitmq.config dest=/etc/rabbitmq/rabbitmq.config
+    #notify: restart rabbitmq
+  - name: restart rabbitmq-server
+    action: service name=rabbitmq-server state=restarted enabled=yes
+
+  #
+  # rabbitmqctl XXX not idempotent XXX
+  # 
+
+  - name: rabbitmqctl add_vhost 
+    action: shell rabbitmqctl add_vhost /sensu
+    ignore_errors: true
+  - name: rabbitmqctl add_user
+    action: shell rabbitmqctl add_user sensu mypass
+    ignore_errors: true
+  - name: rabbitmqctl set_permissions
+    action: shell rabbitmqctl set_permissions -p /sensu sensu ".*" ".*" ".*"
+    ignore_errors: true
+
+  #
+  # Redis
+  #
+ 
+  - name: install redis-server
+    action: apt name=redis-server state=installed
+  - name: start redis
+    action: service name=redis-server state=started enabled=yes
+
+  #
+  # Sensu
+  #
+  # Install packages and start services
+  - name: install sensu omnibus package
+    action: apt name=sensu state=installed force=yes
+
+  # Certificates 
+  - name: ensure there is a /etc/sensu/ssl
+    action: file path=/etc/sensu/ssl state=directory
+  - name: install client certificates
+    action: copy src=files/$item dest=/etc/sensu/ssl/ mode=0600 group=sensu owner=sensu
+    with_items:
+      - client_key.pem
+      - client_cert.pem 
+
+
+  # Install configuration files
+  - name: install sensu config.json
+    action: copy src=files/sensu.config.json dest=/etc/sensu/config.json
+  - name: install sensu client.json
+    action: copy src=files/sensu.client.json dest=/etc/sensu/conf.d/client.json
+
+  # Start all the services
+  - name: start and enable sensu services
+    action: service name=$item state=started enabled=yes
+    with_items:
+      - sensu-server
+      - sensu-api
+      - sensu-client
+      - sensu-dashboard
+
+  handlers:
+    - name: restart rabbitmq-server
+      action: service name=rabbitmq-server state=restarted

@@ -1,0 +1,43 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+nodes = {
+    'sensu-server' => [1, 10],
+    'sensu-client' => [1, 20],
+}
+
+network = "192.168.20"
+
+Vagrant.configure("2") do |config|
+
+    nodes.each do |prefix, (count, ip_start)|
+        count.times do |i|
+            hostname = prefix + i.to_s 
+            #puts "hostnames: " + hostname
+            #puts "ip: #{ip_start+i}" 
+
+            config.vm.define hostname do |box|
+                box.vm.box = "precise64"
+                box.vm.hostname = "#{hostname}"
+                puts "ip for #{hostname} #{network}.#{ip_start+i}"
+                box.vm.network :private_network, ip: "#{network}.#{ip_start+i}"
+
+                # set memory
+                box.vm.provider :vmware_fusion do |v|
+                    v.vmx["memsize"] = 800 
+                    if prefix == "sensu-server"
+                        v.vmx["memsize"] =  4096 
+                    end
+                end
+
+                box.vm.provider :virtualbox do |vbox|
+                    vbox.customize ["modifyvm", :id, "--memory", 512]
+                    vbox.customize ["modifyvm", :id, "--cpus", 1]
+                    if prefix == "percona"
+                        vbox.customize ["modifyvm", :id, "--memory", 1024]
+                    end
+                end
+            end
+        end
+    end
+end
