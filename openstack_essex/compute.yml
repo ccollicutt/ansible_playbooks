@@ -4,6 +4,7 @@
   vars_files:
     - vars/main.yml
   tasks:
+    - include: tasks/compute_repositories.yml
     - include: tasks/ntp.yml
     - include: tasks/compute_ntp.yml
     - include: tasks/compute_nova.yml

@@ -60,14 +60,14 @@
     - nova-compute
     - nova-volume
 
-- name: start all nova services again
-  action: command service $item start
-  with_items:
-    - nova-compute
-    - nova-volume
+#- name: start all nova services again
+#  action: command service $item start
+#  with_items:
+#    - nova-compute
+#    - nova-volume
 
-- name: make sure nova-compute and volume will start on reboot
-  action: service name=$item state=started enabled=yes
-  with_items:
-    - nova-compute
-    - nova-volume
+#- name: make sure nova-compute and volume will start on reboot
+#  action: service name=$item state=started enabled=yes
+#  with_items:
+#    - nova-compute
+#    - nova-volume
